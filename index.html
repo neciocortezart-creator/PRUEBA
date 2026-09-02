@@ -121,10 +121,13 @@
       <div class="card card-glucose">
         <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
         
-        <!-- INICIO MODIFICACIÓN: Micrófono Integrado -->
-        <div style="display: flex; gap: 10px; width: 100%; align-items: stretch; margin-top: 5px;">
+        <!-- INICIO MODIFICACIÓN: Bluetooth y Micrófono Integrado -->
+        <div style="display: flex; gap: 8px; width: 100%; align-items: stretch; margin-top: 5px;">
           <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }" style="flex: 1; margin-bottom: 0;">
-          <button id="btn-microfono" type="button" style="background-color: #ff4500; color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);">🎤 Dictar</button>
+          
+          <button id="btn-bluetooth" type="button" style="background-color: var(--turquoise-strong); color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(8, 131, 135, 0.3);" onclick="sincronizarAccuChek()">📡 Ligar</button>
+          
+          <button id="btn-microfono" type="button" style="background-color: #ff4500; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);">🎤 Voz</button>
         </div>
         <!-- FIN MODIFICACIÓN -->
         
