@@ -1525,65 +1525,143 @@ panelMenu.addEventListener('mousemove', e => {
 });
 
 // ==========================================
-// MÓDULO DE RECONOCIMIENTO DE VOZ - POLAR ÉLITE
+// MÓDULO DE RECONOCIMIENTO DE VOZ Y BLUETOOTH ÉLITE
 // ==========================================
 
+// 1. Lógica Bluetooth Accu-Chek (Protocolo GATT 0x1808)
+async function sincronizarAccuChek() {
+    const btnBlue = document.getElementById('btn-bluetooth');
+    
+    if (!navigator.bluetooth) {
+        alert("Tu navegador no soporta Bluetooth Web. En iPhone, recuerda abrir Polar usando Bluefy.");
+        return;
+    }
+
+    try {
+        btnBlue.innerText = 'Buscando...';
+        btnBlue.style.opacity = '0.7';
+
+        // Escaneamos el espectro buscando medidores de glucosa
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: ['glucose'] }]
+        });
+
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService('glucose');
+        const characteristic = await service.getCharacteristic('glucose_measurement');
+
+        btnBlue.innerText = 'Conectado';
+        btnBlue.style.backgroundColor = '#4CAF50';
+
+        // Iniciamos la lectura de los paquetes de datos
+        await characteristic.startNotifications();
+        characteristic.addEventListener('characteristicvaluechanged', decodificarNivelAzucar);
+        
+        alert("Dispositivo enlazado con excelencia. Realiza la medición en el Accu-Chek ahora.");
+
+    } catch (error) {
+        console.error("Fallo táctico BLE:", error);
+        btnBlue.innerText = '📡 Ligar';
+        btnBlue.style.opacity = '1';
+        btnBlue.style.backgroundColor = 'var(--turquoise-strong)';
+        
+        // Evitamos molestar si el usuario canceló la ventana manualmente
+        if (error.name !== 'NotFoundError') {
+            alert("Error de conexión. Verifica que el Bluetooth esté activo.");
+        }
+    }
+}
+
+function decodificarNivelAzucar(event) {
+    const value = event.target.value;
+    const flags = value.getUint8(0);
+    
+    const timeOffsetPresent = flags & 0x01;
+    const concentrationPresent = flags & 0x02;
+    const concentrationUnit = (flags & 0x04) ? 'mol/L' : 'kg/L';
+
+    if (concentrationPresent) {
+        let index = 1; // Saltamos flags
+        index += 2; // Saltamos sequence number
+        index += 7; // Saltamos base time
+        if (timeOffsetPresent) index += 2; // Saltamos time offset si existe
+
+        // Desciframos el formato IEEE 11073 16-bit SFLOAT
+        const sfloat = value.getUint16(index, true);
+        const mantissa = sfloat & 0x0FFF;
+        let exponent = sfloat >> 12;
+        
+        if (exponent >= 0x08) {
+            exponent = -((0x0F + 1) - exponent);
+        }
+
+        let nivelGlucosa = mantissa * Math.pow(10, exponent);
+
+        // Convertimos a la escala estándar (mg/dL) usada por Polar
+        if (concentrationUnit === 'kg/L') {
+            nivelGlucosa = Math.round(nivelGlucosa * 100000);
+        } else {
+            nivelGlucosa = Math.round(nivelGlucosa * 18.0182 * 1000);
+        }
+
+        // Insertamos en el input y ejecutamos tus funciones de automatización orgánica
+        const inputGlucosa = document.getElementById('glucosa');
+        inputGlucosa.value = nivelGlucosa;
+        
+        dormirPolar();
+        autoFocoCarbos();
+        
+        const btnBlue = document.getElementById('btn-bluetooth');
+        btnBlue.innerText = '📡 Ligar';
+        btnBlue.style.backgroundColor = 'var(--turquoise-strong)';
+        btnBlue.style.opacity = '1';
+    }
+}
+
+// 2. Lógica de Voz Original
 window.addEventListener('DOMContentLoaded', () => {
     const btnMicrofono = document.getElementById('btn-microfono');
     const inputGlucosa = document.getElementById('glucosa');
 
-    // Validar soporte nativo del navegador para ti o para Nersy
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition && btnMicrofono && inputGlucosa) {
         const reconocimiento = new SpeechRecognition();
-        reconocimiento.lang = 'es-CL'; // Español de Chile para capturar perfecto nuestro acento
+        reconocimiento.lang = 'es-CL';
         reconocimiento.continuous = false;
         reconocimiento.interimResults = false;
 
-        // Arrancar a escuchar
         btnMicrofono.addEventListener('click', () => {
             reconocimiento.start();
             btnMicrofono.classList.add('grabando');
-            btnMicrofono.innerText = 'Escuchando...';
+            btnMicrofono.innerText = '...';
         });
 
-        // Procesar el resultado de la voz
         reconocimiento.onresult = (evento) => {
             const resultadoCrudo = evento.results[0][0].transcript.toLowerCase();
-            console.log("Audio capturado:", resultadoCrudo);
-
-            // Filtro élite: elimina letras y basura, extrae solo el número crudo
             const soloNumeros = resultadoCrudo.replace(/\D/g, '');
 
             if (soloNumeros !== '') {
                 inputGlucosa.value = soloNumeros;
-                
-                // Disparamos los mismos eventos orgánicos que tienes cuando tecleas
                 dormirPolar();
                 autoFocoCarbos();
-                
             } else {
                 alert("No detecté un número claro. Intenta de nuevo.");
             }
         };
 
-        // Cuando terminas de hablar o se corta
         reconocimiento.onspeechend = () => {
             reconocimiento.stop();
             btnMicrofono.classList.remove('grabando');
-            btnMicrofono.innerText = '🎤 Dictar';
+            btnMicrofono.innerText = '🎤 Voz';
         };
 
-        // Manejo de errores
         reconocimiento.onerror = (evento) => {
             console.error("Falla en el micrófono:", evento.error);
             btnMicrofono.classList.remove('grabando');
-            btnMicrofono.innerText = '🎤 Dictar';
+            btnMicrofono.innerText = '🎤 Voz';
         };
     } else if (btnMicrofono) {
-        // Si el navegador de algún miembro de la familia está desactualizado
-        console.log("Web Speech API no soportada en este navegador.");
         btnMicrofono.style.display = 'none';
     }
 });
