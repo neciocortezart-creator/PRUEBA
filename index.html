@@ -6,18 +6,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
-  <title>App Polar - Élite V5 Segura</title>
+  <title>App Polar - Élite V5</title>
   
   <link rel="apple-touch-icon" href="polar-logo.png">
   <link rel="icon" type="image/png" href="polar-logo.png">
   <link rel="manifest" href="manifest.json">
 
-  <!-- CONEXIÓN SUPABASE ÉLITE -->
+  <!-- CONEXIÓN SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- LIBRERÍA PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- ESTILOS ÉLITE -->
+  <!-- ESTILOS -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -47,7 +47,7 @@
 <div id="main-app">
 
   <div id="panel-overlay" class="overlay" onclick="cerrarOverlays()"></div>
-  <div id="toast-undo"><span>  Elemento borrado</span><button class="btn-undo" onclick="deshacerBorrado()">Deshacer</button></div>
+  <div id="toast-undo"><span>Elemento borrado</span><button class="btn-undo" onclick="deshacerBorrado()">Deshacer</button></div>
 
   <div id="panel-menu" class="side-panel left-panel">
     <h2 class="panel-header-elite">☰ Menú Polar</h2>
@@ -72,23 +72,14 @@
     </button>
 
     <div class="rules-menu">
-      <h3>  Recordatorios Importantes</h3>
+      <h3>Recordatorios Importantes</h3>
       <ul>
-        <li><strong>Toujeo / Baja:</strong> <span id="txt-toujeo" style="color: var(--turquoise-strong); font-weight: 900; font-size: 15px;">56</span> U config.</li>
+        <li><strong>Toujeo / Basal:</strong> <span id="txt-toujeo" style="color: var(--turquoise-strong); font-weight: 900; font-size: 15px;">56</span> U config.</li>
         <li><strong style="color:#FF3B30;">Crítica (&lt;= 54):</strong> NO inyectar.</li>
         <li><strong>Alta (&gt;= 250):</strong> Revisa posibles picos altos seguidos.</li>
         <li><strong style="color:#FF3B30;">Extrema (&gt;= 400):</strong> Llamar a emergencias / Papá.</li>
       </ul>
     </div>
-  </div>
-
-  <div id="panel-recetas" class="side-panel right-panel">
-    <h2 style="color: var(--turquoise-strong); font-weight: 900; margin-bottom: 20px; font-size: 24px;">  ¡Misión: Comida!</h2>
-    <div id="recomendacion-comida" class="receta-item">
-      <h4>  ¡Esperando el cálculo mágico!</h4>
-      <p>Ingresa la energía de Polar y sus carbohidratos, luego presiona el botón para descubrir tu alternativa élite.</p>
-    </div>
-    <button class="btn-save" style="background: var(--text-primary); color: var(--text-inverse); margin-top: 12px;" onclick="toggleRecetasPanel()">Cerrar Sugerencias</button>
   </div>
 
   <div class="app-container">
@@ -101,11 +92,11 @@
           <span class="bear-icon" id="main-bear-icon" style="display: block; width: 100%; height: 100%;">
             <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="16" fill="#FFFFFF"/><circle cx="72" cy="40" r="16" fill="#FFFFFF"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><circle cx="38" cy="70" r="4.5" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="7" ry="4" fill="#2C3A40"/></svg>
           </span>
-          <span class="z-icon"> </span>
+          <span class="z-icon"></span>
         </div>
       </div>
       <div class="top-actions">
-        <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()"> </button>
+        <button id="btn-install" class="icon-btn" style="display: none;" onclick="instalarApp()">Instalar</button>
         <button id="btn-usuario-nombre" class="icon-btn" onclick="switchTab('usuario')">Líder</button>
       </div>
     </div>
@@ -114,34 +105,38 @@
       <div class="card card-meal card-full">
         <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
         <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true'; calcular(false);">
-          <option value="desayuno">DESAYUNO</option><option value="mam">ONCE</option><option value="almuerzo">ALMUERZO</option><option value="mpm">MERIENDA TARDE</option><option value="cena">CENA</option><option value="corroborar">CORROBORAR</option>
+          <option value="desayuno">DESAYUNO</option>
+          <option value="mam">ONCE</option>
+          <option value="almuerzo">ALMUERZO</option>
+          <option value="mpm">MERIENDA TARDE</option>
+          <option value="cena">CENA</option>
+          <option value="corroborar">CORROBORAR</option>
         </select>
       </div>
 
       <div class="card card-glucose">
-        <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
+        <label for="glucosa" style="color: inherit; font-size: 17px;">Nivel de Energía</label>
         <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
         
         <input type="hidden" id="tendencia" value="estable">
 
-        <label for="meta" class="label-small" style="color: inherit; font-size: 14px; margin-top: 2px;">  Nivel ideal:</label>
+        <label for="meta" class="label-small" style="color: inherit; font-size: 14px; margin-top: 2px;">Nivel ideal:</label>
         <select id="meta" class="select-small" onchange="calcular(false)"></select>
       </div>
 
       <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
-        <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">  comida CHO R4</label>
+        <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">comida CHO R4</label>
         <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
         
-        <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">  ¿Correrá mucho?</label>
+        <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">¿Correrá mucho?</label>
         <input type="hidden" id="ejercicio" value="1">
         <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
       </div>
       
-      <!-- EXCELENCIA: Contenedor de resultado dinámico -->
       <div id="resultado" class="result-box"></div>
     </div>
 
-    <!-- INICIO ÚLTIMOS REGISTROS -->
+    <!-- RADAR: ÚLTIMOS REGISTROS -->
     <div id="radar-precision" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--white); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);">
       <h3 class="panel-header-small" style="margin-bottom: 12px; font-size: 16px;">
         <div class="title-flex">
@@ -155,7 +150,6 @@
       </h3>
       <div id="lista-radar" style="display: flex; flex-direction: column; gap: 8px;"></div>
     </div>
-    <!-- FIN ÚLTIMOS REGISTROS -->
 
     <div id="view-graficas" style="display: none;">
       <div class="card card-panel-grafico card-full" id="panel-grafico" style="display: block; margin-bottom: 20px;">
@@ -178,7 +172,6 @@
         </div>
         
         <div id="barras-mensuales" style="margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
-        
         <div id="panel-comidas-stats" style="margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
       </div>
     </div>
@@ -202,8 +195,7 @@
               <input type="date" id="buscador-fecha" style="flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--input-border); font-weight: 900; color: var(--turquoise-strong); background: var(--bg-polar);" onchange="buscarDiaEspecifico()">
           </div>
 
-          <div id="resultado-buscador" style="display: none; margin-top: 16px; background: var(--bg-polar); padding: 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05);">
-          </div>
+          <div id="resultado-buscador" style="display: none; margin-top: 16px; background: var(--bg-polar); padding: 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,0.05);"></div>
       </div>
     </div>
 
@@ -217,7 +209,7 @@
              Guardados
           </div>
         </h3>
-        <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">  Ver Sugerencia de Esquema</button>
+        <button class="btn-save" style="background: #FFD60A; color: #1A1A1A; margin-bottom: 18px; font-weight: 900; box-shadow: 0 4px 15px rgba(255,214,10,0.2);" onclick="sugerirEsquema()">Ver Sugerencia de Esquema</button>
         <div id="lista-historial"></div>
         <button id="btn-borrar-historial" class="btn-save bg-rojo-alerta" style="margin-top: 18px; width: 100%; font-size: 15px;" onclick="borrarHistorialCompleto()">Borrar Todo el Historial</button>
       </div>
@@ -265,23 +257,32 @@
           </div>
         </h3>
         
-        <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 10px; font-weight: 900; font-size: 14px;" onclick="toggleRedondeo()">redondeo activado</button>
+        <button id="btn-toggle-redondeo" class="btn-small" style="background: var(--turquoise-strong); color: white; margin-bottom: 14px; font-weight: 900; font-size: 14px; width: 100%; padding: 12px; border-radius: 12px;" onclick="toggleRedondeo()">redondeo activado</button>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
           <div><label>Peso Polar (kg)</label><input type="number" id="cfg-peso" value="50" inputmode="numeric"></div>
-          <div><label>Toujeo</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric"></div>
-          <div><label>F. Cor. General</label><input type="number" id="cfg-fc" value="30" inputmode="numeric"></div>
-          <div><label>F. Cor. Almuerzo</label><input type="number" id="cfg-fc-alm" placeholder="Ej: 40" inputmode="numeric"></div>
+          <div><label>Toujeo / Basal</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric"></div>
+        </div>
+
+        <!-- CASILLAS DE FACTORES DE CORRECCIÓN INDIVIDUALES -->
+        <h3 style="color: var(--turquoise-strong); font-size: 15px; margin-top: 10px; margin-bottom: 8px;">Factores de Corrección (1U baja X mg/dL)</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+          <div><label>FC Desayuno</label><input type="number" id="cfg-fc-desayuno" value="30" inputmode="numeric"></div>
+          <div><label>FC Once</label><input type="number" id="cfg-fc-mam" value="30" inputmode="numeric"></div>
+          <div><label>FC Almuerzo</label><input type="number" id="cfg-fc-alm" value="30" inputmode="numeric"></div>
+          <div><label>FC Merienda PM</label><input type="number" id="cfg-fc-mpm" value="30" inputmode="numeric"></div>
+          <div><label>FC Cena</label><input type="number" id="cfg-fc-cena" value="30" inputmode="numeric"></div>
+          <div><label>FC Corroborar</label><input type="number" id="cfg-fc-corroborar" value="30" inputmode="numeric"></div>
         </div>
         
         <h3>Objetivos (Metas)</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
           <div><label>Antes Comer</label><input type="number" id="cfg-meta-antes" value="100" inputmode="numeric"></div>
           <div><label>Corrección</label><input type="number" id="cfg-meta-cor" value="150" inputmode="numeric"></div>
         </div>
         
         <h3>Ratios (Por 1U)</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
           <div><label>Desayuno</label><input type="number" id="cfg-r-desayuno" value="4" inputmode="numeric" onchange="actualizarTextosComida()"></div>
           <div><label>Once</label><input type="number" id="cfg-r-mam" value="0" inputmode="numeric" onchange="actualizarTextosComida()"></div>
           <div><label>Almuerzo</label><input type="number" id="cfg-r-alm" value="5" inputmode="numeric" onchange="actualizarTextosComida()"></div>
@@ -290,15 +291,15 @@
         </div>
 
         <select id="cfg-tema" onchange="cambiarTema()" style="margin-top: 12px; margin-bottom: 12px; font-weight: 800;">
-          <option value="elite">  Polar Élite (Oficial V5)</option>
-          <option value="original">  Polar Ice (Clásico)</option>
-          <option value="oscuro">  Tema Negro (Modo Oscuro)</option>
-          <option value="blanco">  Tema Blanco (Modo Claro)</option>
-          <option value="halloween">  Halloween</option>
-          <option value="mustard_jet">  Jet & Mustard</option>
-          <option value="moonstone_orange">  Moonstone & Orange</option>
-          <option value="persian_carrot">  Persian Blue & Carrot</option>
-          <option value="mellow_cornflower">  Cornflower & Citron</option>
+          <option value="elite">Polar Élite (Oficial V5)</option>
+          <option value="original">Polar Ice (Clásico)</option>
+          <option value="oscuro">Tema Negro (Modo Oscuro)</option>
+          <option value="blanco">Tema Blanco (Modo Claro)</option>
+          <option value="halloween">Halloween</option>
+          <option value="mustard_jet">Jet & Mustard</option>
+          <option value="moonstone_orange">Moonstone & Orange</option>
+          <option value="persian_carrot">Persian Blue & Carrot</option>
+          <option value="mellow_cornflower">Cornflower & Citron</option>
         </select>
 
         <h3>Emergencias</h3>
@@ -317,7 +318,7 @@
     <div id="view-avatars" style="display: none;">
       <div class="card card-avatars card-full" id="panel-avatars" style="display: block;">
         <h3 class="panel-header-small">
-          <span>  Bestias de Poder</span>
+          <span>Bestias de Poder</span>
           <div class="title-flex">
             <button class="btn-close-panel" onclick="switchTab('home')">×</button>
           </div>
@@ -366,7 +367,7 @@
 
 </div>
 
-<!-- CONEXIÓN DE LA LÓGICA ÉLITE -->
+<!-- LÓGICA DE LA APP -->
 <script src="app.js"></script>
 </body>
 </html>
