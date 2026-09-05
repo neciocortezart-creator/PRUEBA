@@ -19,6 +19,22 @@
 
   <!-- ESTILOS -->
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Área táctil amplia y respuesta instantánea al toque en iPhone */
+    .btn-close-modal {
+      width: 40px !important;
+      height: 40px !important;
+      font-size: 24px !important;
+      top: 8px !important;
+      right: 8px !important;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+  </style>
 </head>
 <body>
 
@@ -101,7 +117,7 @@
       </div>
     </div>
 
-    <!-- CALCULADORA PRINCIPAL OPTIMIZADA PARA IPHONE, ANDROID Y MAC -->
+    <!-- CALCULADORA PRINCIPAL CON FORMULARIO -->
     <form class="grid" id="main-calculator" onsubmit="event.preventDefault(); document.activeElement && document.activeElement.blur(); calcular(false); return false;">
       <div class="card card-meal card-full">
         <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
@@ -120,8 +136,7 @@
         <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" enterkeyhint="next"
                oninput="dormirPolar(); autoFocoCarbos()" 
                onfocus="document.getElementById('resultado').style.display='none';" 
-               onkeydown="if(event.key === 'Enter' || event.keyCode === 13 || event.which === 13) { event.preventDefault(); document.getElementById('carbos').focus(); }"
-               onchange="if(document.getElementById('comida').value === 'corroborar') calcular(false);">
+               onkeydown="if(event.key === 'Enter' || event.keyCode === 13 || event.which === 13) { event.preventDefault(); document.getElementById('carbos').focus(); }">
         
         <input type="hidden" id="tendencia" value="estable">
 
@@ -134,8 +149,7 @@
         <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" enterkeyhint="go"
                oninput="dormirPolar()" 
                onfocus="document.getElementById('resultado').style.display='none';" 
-               onkeydown="if(event.key === 'Enter' || event.keyCode === 13 || event.which === 13) { event.preventDefault(); this.blur(); calcular(false); }"
-               onchange="if(this.value !== '') calcular(false);">
+               onkeydown="if(event.key === 'Enter' || event.keyCode === 13 || event.which === 13) { event.preventDefault(); this.blur(); calcular(false); }">
         
         <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">¿Correrá mucho?</label>
         <input type="hidden" id="ejercicio" value="1">
@@ -144,9 +158,10 @@
 
       <!-- BOTÓN DIRECTO DE CÁLCULO -->
       <button type="submit" class="btn-main card-full" style="margin-top: 4px;">Calcular Dosis</button>
-      
-      <div id="resultado" class="result-box"></div>
     </form>
+
+    <!-- VENTANA MODAL DE RESULTADO: FUERA DEL FORMULARIO -->
+    <div id="resultado" class="result-box"></div>
 
     <!-- RADAR: ÚLTIMOS REGISTROS -->
     <div id="radar-precision" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--white); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);">
@@ -381,5 +396,51 @@
 
 <!-- LÓGICA DE LA APP -->
 <script src="app.js"></script>
+
+<!-- CIERRE INMEDIATO Y DESENFOQUE PROFESIONAL -->
+<script>
+(function() {
+  const originalCalcular = window.calcular;
+  if (typeof originalCalcular === 'function') {
+    window.calcular = function(esNav) {
+      if (document.activeElement && document.activeElement.blur) {
+        document.activeElement.blur();
+      }
+      originalCalcular(esNav);
+      
+      const res = document.getElementById('resultado');
+      if (res) {
+        const btnX = res.querySelector('.btn-close-modal');
+        if (btnX) {
+          btnX.type = 'button';
+          btnX.onclick = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            res.style.display = 'none';
+          };
+          btnX.onpointerdown = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            res.style.display = 'none';
+          };
+        }
+      }
+    };
+  }
+
+  function cerrarDirecto(e) {
+    const btn = e.target.closest ? e.target.closest('.btn-close-modal') : null;
+    if (btn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const res = document.getElementById('resultado');
+      if (res) res.style.display = 'none';
+    }
+  }
+
+  window.addEventListener('pointerdown', cerrarDirecto, { capture: true, passive: false });
+  window.addEventListener('touchstart', cerrarDirecto, { capture: true, passive: false });
+  window.addEventListener('click', cerrarDirecto, { capture: true, passive: false });
+})();
+</script>
+
 </body>
 </html>
