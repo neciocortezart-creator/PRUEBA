@@ -611,10 +611,7 @@ function actualizarBotonRedondeoUI() {
 
 function redondeoElite(valor) {
   if (!usoRedondeoElite) return valor;
-  let entero = Math.floor(valor);
-  let decimal = valor - entero;
-  if (decimal >= 0.7) return entero + 1;
-  return entero; 
+  return Math.round(valor); 
 }
 
 let deferredPrompt; let calFechaActual = new Date();
@@ -622,7 +619,7 @@ let estadoEjercicio = 0; let calcHistoria = []; let calcPosicion = -1;
 let tooltipListenerAdded = false;
 
 let config = {
-  peso: 50, toujeo: 56, fc: 30, telEmergencia: "131", telPapa: "973808283", avatar: 0, tema: "elite",
+  peso: 50, toujeo: 56, fc: 30, fcAlmuerzo: null, telEmergencia: "131", telPapa: "973808283", avatar: 0, tema: "elite",
   ratios: { desayuno: 4, mam: 0, almuerzo: 5, mpm: 5, cena: 14, corroborar: 0 },
   metas: { antes: 100, correccion: 150 }
 };
@@ -760,6 +757,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cfg-peso').value = config.peso;
   document.getElementById('cfg-toujeo').value = config.toujeo; 
   document.getElementById('cfg-fc').value = config.fc; 
+  if(document.getElementById('cfg-fc-alm')) {
+      document.getElementById('cfg-fc-alm').value = config.fcAlmuerzo !== null ? config.fcAlmuerzo : '';
+  }
   document.getElementById('cfg-tel-emergencia').value = config.telEmergencia; 
   document.getElementById('cfg-tel-papa').value = config.telPapa;
   
@@ -956,6 +956,10 @@ async function guardarConfig() {
   config.peso = parseFloat(document.getElementById('cfg-peso').value) || 50;
   config.toujeo = parseFloat(document.getElementById('cfg-toujeo').value) || 0; 
   config.fc = parseFloat(document.getElementById('cfg-fc').value) || 1; 
+  
+  let valAlm = document.getElementById('cfg-fc-alm').value;
+  config.fcAlmuerzo = valAlm ? parseFloat(valAlm) : null;
+  
   config.telEmergencia = document.getElementById('cfg-tel-emergencia').value || "131"; 
   config.telPapa = document.getElementById('cfg-tel-papa').value || "973808283";
   
@@ -1423,14 +1427,25 @@ function calcular(esNav = false) {
   const inputRatio = document.getElementById('cfg-r-' + comidaKey);
   const ratio = inputRatio ? parseFloat(inputRatio.value) : (config.ratios[comidaKey] || 0);
   const factorEj = parseFloat(document.getElementById('ejercicio').value); 
+  
   const inputFc = document.getElementById('cfg-fc');
-  const fc = inputFc ? parseFloat(inputFc.value) : config.fc; 
+  let fc = inputFc ? parseFloat(inputFc.value) : config.fc; 
+  
+  if (comidaKey === 'almuerzo') {
+      const inputFcAlm = document.getElementById('cfg-fc-alm');
+      if (inputFcAlm && inputFcAlm.value !== "") {
+          fc = parseFloat(inputFcAlm.value);
+      } else if (config.fcAlmuerzo !== undefined && config.fcAlmuerzo !== null) {
+          fc = config.fcAlmuerzo;
+      }
+  }
+
   const resDiv = document.getElementById('resultado');
 
   let dosisComidaExacta = (ratio === 0) ? 0 : (carbos / ratio);
   let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : dosisComidaExacta;
   let dosisCorreccionExacta = (glucosa > metaRestar) ? (glucosa - metaRestar) / fc : 0; 
-  let dosisCorreccion = usoRedondeoElite ? Math.floor(dosisCorreccionExacta) : dosisCorreccionExacta;
+  let dosisCorreccion = usoRedondeoElite ? redondeoElite(dosisCorreccionExacta) : dosisCorreccionExacta;
 
   let dosisTotal = (dosisComida + dosisCorreccion) * factorEj;
 
@@ -1522,146 +1537,4 @@ panelMenu.addEventListener('mousemove', e => {
   if (e.buttons === 1 && startX - e.clientX > 50) {
     if (panelMenu.classList.contains('open')) toggleMenuPanel();
   }
-});
-
-// ==========================================
-// MÓDULO DE RECONOCIMIENTO DE VOZ Y BLUETOOTH ÉLITE
-// ==========================================
-
-// 1. Lógica Bluetooth Accu-Chek (Protocolo GATT 0x1808)
-async function sincronizarAccuChek() {
-    const btnBlue = document.getElementById('btn-bluetooth');
-    
-    if (!navigator.bluetooth) {
-        alert("Tu navegador no soporta Bluetooth Web. En iPhone, recuerda abrir Polar usando Bluefy.");
-        return;
-    }
-
-    try {
-        btnBlue.innerText = 'Buscando...';
-        btnBlue.style.opacity = '0.7';
-
-        // Escaneamos el espectro buscando medidores de glucosa
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ['glucose'] }]
-        });
-
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('glucose');
-        const characteristic = await service.getCharacteristic('glucose_measurement');
-
-        btnBlue.innerText = 'Conectado';
-        btnBlue.style.backgroundColor = '#4CAF50';
-
-        // Iniciamos la lectura de los paquetes de datos
-        await characteristic.startNotifications();
-        characteristic.addEventListener('characteristicvaluechanged', decodificarNivelAzucar);
-        
-        alert("Dispositivo enlazado con excelencia. Realiza la medición en el Accu-Chek ahora.");
-
-    } catch (error) {
-        console.error("Fallo táctico BLE:", error);
-        btnBlue.innerText = '📡 Ligar';
-        btnBlue.style.opacity = '1';
-        btnBlue.style.backgroundColor = 'var(--turquoise-strong)';
-        
-        // Evitamos molestar si el usuario canceló la ventana manualmente
-        if (error.name !== 'NotFoundError') {
-            alert("Error de conexión. Verifica que el Bluetooth esté activo.");
-        }
-    }
-}
-
-function decodificarNivelAzucar(event) {
-    const value = event.target.value;
-    const flags = value.getUint8(0);
-    
-    const timeOffsetPresent = flags & 0x01;
-    const concentrationPresent = flags & 0x02;
-    const concentrationUnit = (flags & 0x04) ? 'mol/L' : 'kg/L';
-
-    if (concentrationPresent) {
-        let index = 1; // Saltamos flags
-        index += 2; // Saltamos sequence number
-        index += 7; // Saltamos base time
-        if (timeOffsetPresent) index += 2; // Saltamos time offset si existe
-
-        // Desciframos el formato IEEE 11073 16-bit SFLOAT
-        const sfloat = value.getUint16(index, true);
-        const mantissa = sfloat & 0x0FFF;
-        let exponent = sfloat >> 12;
-        
-        if (exponent >= 0x08) {
-            exponent = -((0x0F + 1) - exponent);
-        }
-
-        let nivelGlucosa = mantissa * Math.pow(10, exponent);
-
-        // Convertimos a la escala estándar (mg/dL) usada por Polar
-        if (concentrationUnit === 'kg/L') {
-            nivelGlucosa = Math.round(nivelGlucosa * 100000);
-        } else {
-            nivelGlucosa = Math.round(nivelGlucosa * 18.0182 * 1000);
-        }
-
-        // Insertamos en el input y ejecutamos tus funciones de automatización orgánica
-        const inputGlucosa = document.getElementById('glucosa');
-        inputGlucosa.value = nivelGlucosa;
-        
-        dormirPolar();
-        autoFocoCarbos();
-        
-        const btnBlue = document.getElementById('btn-bluetooth');
-        btnBlue.innerText = '📡 Ligar';
-        btnBlue.style.backgroundColor = 'var(--turquoise-strong)';
-        btnBlue.style.opacity = '1';
-    }
-}
-
-// 2. Lógica de Voz Original
-window.addEventListener('DOMContentLoaded', () => {
-    const btnMicrofono = document.getElementById('btn-microfono');
-    const inputGlucosa = document.getElementById('glucosa');
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (SpeechRecognition && btnMicrofono && inputGlucosa) {
-        const reconocimiento = new SpeechRecognition();
-        reconocimiento.lang = 'es-CL';
-        reconocimiento.continuous = false;
-        reconocimiento.interimResults = false;
-
-        btnMicrofono.addEventListener('click', () => {
-            reconocimiento.start();
-            btnMicrofono.classList.add('grabando');
-            btnMicrofono.innerText = '...';
-        });
-
-        reconocimiento.onresult = (evento) => {
-            const resultadoCrudo = evento.results[0][0].transcript.toLowerCase();
-            const soloNumeros = resultadoCrudo.replace(/\D/g, '');
-
-            if (soloNumeros !== '') {
-                inputGlucosa.value = soloNumeros;
-                dormirPolar();
-                autoFocoCarbos();
-            } else {
-                alert("No detecté un número claro. Intenta de nuevo.");
-            }
-        };
-
-        reconocimiento.onspeechend = () => {
-            reconocimiento.stop();
-            btnMicrofono.classList.remove('grabando');
-            btnMicrofono.innerText = '🎤 Voz';
-        };
-
-        reconocimiento.onerror = (evento) => {
-            console.error("Falla en el micrófono:", evento.error);
-            btnMicrofono.classList.remove('grabando');
-            btnMicrofono.innerText = '🎤 Voz';
-        };
-    } else if (btnMicrofono) {
-        btnMicrofono.style.display = 'none';
-    }
 });
