@@ -120,20 +120,11 @@
 
       <div class="card card-glucose">
         <label for="glucosa" style="color: inherit; font-size: 17px;">  Nivel de Energía</label>
-        
-        <!-- INICIO MODIFICACIÓN: Bluetooth y Micrófono Integrado -->
-        <div style="display: flex; gap: 8px; width: 100%; align-items: stretch; margin-top: 5px;">
-          <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }" style="flex: 1; margin-bottom: 0;">
-          
-          <button id="btn-bluetooth" type="button" style="background-color: var(--turquoise-strong); color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(8, 131, 135, 0.3);" onclick="sincronizarAccuChek()">📡 Ligar</button>
-          
-          <button id="btn-microfono" type="button" style="background-color: #ff4500; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);">🎤 Voz</button>
-        </div>
-        <!-- FIN MODIFICACIÓN -->
+        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
         
         <input type="hidden" id="tendencia" value="estable">
 
-        <label for="meta" class="label-small" style="color: inherit; font-size: 14px; margin-top: 10px;">  Nivel ideal:</label>
+        <label for="meta" class="label-small" style="color: inherit; font-size: 14px; margin-top: 2px;">  Nivel ideal:</label>
         <select id="meta" class="select-small" onchange="calcular(false)"></select>
       </div>
 
@@ -279,7 +270,8 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
           <div><label>Peso Polar (kg)</label><input type="number" id="cfg-peso" value="50" inputmode="numeric"></div>
           <div><label>Toujeo</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric"></div>
-          <div style="grid-column: span 2;"><label>F. Corrección (1U baja X)</label><input type="number" id="cfg-fc" value="30" inputmode="numeric"></div>
+          <div><label>F. Cor. General</label><input type="number" id="cfg-fc" value="30" inputmode="numeric"></div>
+          <div><label>F. Cor. Almuerzo</label><input type="number" id="cfg-fc-alm" placeholder="Ej: 40" inputmode="numeric"></div>
         </div>
         
         <h3>Objetivos (Metas)</h3>
@@ -375,6 +367,6 @@
 </div>
 
 <!-- CONEXIÓN DE LA LÓGICA ÉLITE -->
-<script src="app.js"></script>
+<script src="app-2.js"></script>
 </body>
 </html>
