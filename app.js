@@ -30,7 +30,6 @@ function switchTab(tabId) {
   document.getElementById('view-avatars').style.display = 'none';
   document.getElementById('view-usuario').style.display = 'none';
 
-  // Apagamos el Radar por defecto en todas las pestañas
   const radar = document.getElementById('radar-precision');
   if (radar) radar.style.display = 'none';
 
@@ -38,7 +37,7 @@ function switchTab(tabId) {
 
   if (tabId === 'home') {
     document.getElementById('main-calculator').style.display = 'grid'; 
-    if (radar) radar.style.display = 'block'; // Lo encendemos solo en Inicio
+    if (radar) radar.style.display = 'block';
     document.getElementById('nav-home').classList.add('active');
     
     if(document.getElementById('glucosa').value !== '' || document.getElementById('carbos').value !== '') {
@@ -56,7 +55,7 @@ function switchTab(tabId) {
   }
   else if (tabId === 'historial') {
     document.getElementById('view-historial').style.display = 'block';
-    if (radar) radar.style.display = 'block'; // Lo encendemos en Guardados
+    if (radar) radar.style.display = 'block';
     document.getElementById('nav-historial').classList.add('active');
     actualizarVistaHistorial();
   } 
@@ -93,7 +92,7 @@ function actualizarRadar() {
 
   listaRadar.innerHTML = ultimosTres.map(reg => {
       const nombreComida = dict[reg.tipoComida] || 'Manual';
-      const hora = reg.fecha.split(', ')[1] || reg.fecha;
+      const hora = reg.fecha.split(', ') || reg.fecha;
       let colorGlucosa = 'var(--text-primary)';
       if(reg.glucosa < 70) colorGlucosa = '#FF3B30';
       else if(reg.glucosa > 180) colorGlucosa = '#FF9F0A';
@@ -168,7 +167,6 @@ async function procesarColaOffline() {
   const { error } = await polarDb.from('historial_polar').insert(cola);
   if(!error) {
      localStorage.removeItem('polar_cola_sync');
-     console.log("Datos offline subidos con éxito.");
   }
 }
 window.addEventListener('online', procesarColaOffline);
@@ -189,7 +187,6 @@ function activarSuscripcionTiempoReal() {
         filter: `paciente_id=eq.${userId}`
       },
       (payload) => {
-        console.log("¡Registro detectado en tiempo real!", payload);
         sincronizarDatosNube();
       }
     )
@@ -322,7 +319,8 @@ function cargarNombreUsuario() {
   document.getElementById('btn-usuario-nombre').innerText = nombreGuardado;
 }
 
-let backupData = null; let toastTimeout;
+let backupData = null; 
+let toastTimeout;
 
 function activarDeshacer(tipo, datosViejos) { 
     backupData = { tipo: tipo, datos: datosViejos }; 
@@ -344,7 +342,8 @@ function deshacerBorrado() {
       renderGraficoPicos(); 
       actualizarRadar();
   }
-  document.getElementById('toast-undo').classList.remove('show'); backupData = null;
+  document.getElementById('toast-undo').classList.remove('show'); 
+  backupData = null;
 }
 
 const temasVisuales = {
@@ -552,7 +551,7 @@ function buscarDiaEspecifico() {
     const dictColores = { 'desayuno': '#FCA311', 'mam': '#D84B79', 'almuerzo': '#4CAF50', 'mpm': '#5B9BD5', 'cena': '#A35496', 'corroborar': '#2C3A40', 'post-comida': '#088387' };
 
     const partesFecha = fechaSeleccionada.split('-');
-    const fechaLimpia = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+    const fechaLimpia = `${partesFecha}/${partesFecha}/${partesFecha[0]}`;
 
     let html = `<h4 style="font-size: 15px; font-weight: 900; color: var(--text-primary); margin-bottom: 12px; text-align: center; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">Auditoría del ${fechaLimpia}</h4>`;
 
@@ -567,7 +566,7 @@ function buscarDiaEspecifico() {
         else if(reg.glucosa > 180) colorGlucosa = '#FF9F0A';
         else colorGlucosa = '#4CAF50';
 
-        const horaRegistro = reg.fecha.split(', ')[1] || '-';
+        const horaRegistro = reg.fecha.split(', ') || '-';
 
         html += `
         <div style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border-left: 5px solid ${colorEtiqueta};">
@@ -596,10 +595,14 @@ function toggleRedondeo() {
     usoRedondeoElite = !usoRedondeoElite;
     actualizarBotonRedondeoUI();
     localStorage.setItem('polar_redondeo_activo', usoRedondeoElite ? 'true' : 'false');
+    if (document.getElementById('resultado').style.display === 'block') {
+      calcular(true);
+    }
 }
 
 function actualizarBotonRedondeoUI() {
     const btn = document.getElementById('btn-toggle-redondeo');
+    if (!btn) return;
     if (usoRedondeoElite) {
         btn.innerText = "redondeo activado";
         btn.style.background = "var(--turquoise-strong)";
@@ -609,17 +612,43 @@ function actualizarBotonRedondeoUI() {
     }
 }
 
+// REGLA EXACTA DE REDONDEO SOLICITADA:
+// 7,5 unidades -> 8
+// 7,4 hacia abajo -> 7
 function redondeoElite(valor) {
   if (!usoRedondeoElite) return valor;
-  return Math.round(valor); 
+  const valRedondeado = Math.round(valor * 100) / 100;
+  const entero = Math.floor(valRedondeado);
+  const decimal = valRedondeado - entero;
+  if (decimal >= 0.5) {
+    return entero + 1;
+  }
+  return entero;
 }
 
-let deferredPrompt; let calFechaActual = new Date();
-let estadoEjercicio = 0; let calcHistoria = []; let calcPosicion = -1;
+let deferredPrompt; 
+let calFechaActual = new Date();
+let estadoEjercicio = 0; 
+let calcHistoria = []; 
+let calcPosicion = -1;
 let tooltipListenerAdded = false;
 
+// Configuración inicial con factores de corrección por comida
 let config = {
-  peso: 50, toujeo: 56, fc: 30, fcAlmuerzo: null, telEmergencia: "131", telPapa: "973808283", avatar: 0, tema: "elite",
+  peso: 50, 
+  toujeo: 56, 
+  fc: {
+    desayuno: 30,
+    mam: 30,
+    almuerzo: 30,
+    mpm: 30,
+    cena: 30,
+    corroborar: 30
+  },
+  telEmergencia: "131", 
+  telPapa: "973808283", 
+  avatar: 0, 
+  tema: "elite",
   ratios: { desayuno: 4, mam: 0, almuerzo: 5, mpm: 5, cena: 14, corroborar: 0 },
   metas: { antes: 100, correccion: 150 }
 };
@@ -632,7 +661,7 @@ const svgBuho = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="ht
 const svgLobo = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="20,45 35,15 45,45" fill="#7F8C8D"/><polygon points="80,45 65,15 55,45" fill="#7F8C8D"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#BDC3C7"/><circle cx="35" cy="65" r="4" fill="#2C3A40"/><circle cx="65" cy="65" r="4" fill="#2C3A40"/><ellipse cx="50" cy="80" rx="6" ry="4" fill="#2C3A40"/></svg>`;
 const svgTigre = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="45" r="12" fill="#F39C12"/><circle cx="75" cy="45" r="12" fill="#F39C12"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#E67E22"/><path d="M 30 55 Q 50 65 70 55" stroke="#2C3A40" stroke-width="3" fill="none"/><path d="M 25 65 Q 50 75 75 65" stroke="#2C3A40" stroke-width="3" fill="none"/><circle cx="38" cy="75" r="4" fill="#2C3A40"/><circle cx="62" cy="75" r="4" fill="#2C3A40"/><ellipse cx="50" cy="85" rx="5" ry="3" fill="#C0392B"/></svg>`;
 const svgPanda = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="28" cy="40" r="14" fill="#2C3A40"/><circle cx="72" cy="40" r="14" fill="#2C3A40"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#FFFFFF"/><ellipse cx="35" cy="70" rx="10" ry="14" fill="#2C3A40"/><ellipse cx="65" cy="70" rx="10" ry="14" fill="#2C3A40"/><circle cx="35" cy="68" r="3" fill="#FFFFFF"/><circle cx="65" cy="68" r="3" fill="#FFFFFF"/><ellipse cx="50" cy="85" rx="6" ry="3" fill="#2C3A40"/></svg>`;
-const svgUnicornio = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="40,45 50,10 60,45" fill="#F3C623"/><path d="M 20 95 Q 10 60 30 45" stroke="#5B9BD5" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 80 95 Q 90 60 70 45" stroke="#F05A4A" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 15 95 A 35 35 0 0 1 85 95 Z" fill="#FDFEFE"/><circle cx="38" cy="70" r="4" fill="#2C3A40"/><circle cx="62" cy="70" r="4" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#F05A4A"/></svg>`;
+const svgUnicornio = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="40,45 50,10 60,45" fill="#F3C623"/><path d="M 20 95 Q 10 60 30 45" stroke="#5B9BD5" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 80 95 Q 90 60 70 45" stroke="#F05A4A" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M 15 95 A 35 35 0 0 1 85 95 Z" fill="#FDFEFE"/><circle cx="38" cy="70" r="4" fill="#2C3A40"/><circle cx="62" cy="70" r="4.5" fill="#2C3A40"/><ellipse cx="50" cy="82" rx="5" ry="3" fill="#F05A4A"/></svg>`;
 const svgDragon = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="30,45 50,20 70,45" fill="#F05A4A"/><polygon points="10,60 25,35 40,60" fill="#F05A4A"/><polygon points="90,60 75,35 60,60" fill="#F05A4A"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#27AE60"/><circle cx="35" cy="70" r="5" fill="#F1C40F"/><circle cx="65" cy="70" r="5" fill="#F1C40F"/><circle cx="35" cy="70" r="2" fill="#2C3A40"/><circle cx="65" cy="70" r="2" fill="#2C3A40"/><rect x="42" y="85" width="4" height="4" fill="#2C3A40"/><rect x="54" y="85" width="4" height="4" fill="#2C3A40"/></svg>`;
 
 const avatares = [
@@ -709,9 +738,42 @@ function seleccionarAvatarDirecto(index) {
   alert("¡Poder equipado con excelencia!"); 
 }
 
-function cargarAvatar() { document.getElementById('main-bear-icon').innerHTML = avatares[config.avatar || 0].icon; }
+function cargarAvatar() { 
+  document.getElementById('main-bear-icon').innerHTML = avatares[config.avatar || 0].icon; 
+}
 
-function obtenerFechaLocalISO() { const ahora = new Date(); const tzOffset = ahora.getTimezoneOffset() * 60000; return new Date(ahora.getTime() - tzOffset).toISOString().split('T')[0]; }
+function obtenerFechaLocalISO() { 
+  const ahora = new Date(); 
+  const tzOffset = ahora.getTimezoneOffset() * 60000; 
+  return new Date(ahora.getTime() - tzOffset).toISOString().split('T')[0]; 
+}
+
+// Obtener el Factor de Corrección exacto según la comida
+function obtenerFcComida(comidaKey) {
+  const idMap = {
+    'desayuno': 'cfg-fc-desayuno',
+    'mam': 'cfg-fc-mam',
+    'almuerzo': 'cfg-fc-alm',
+    'mpm': 'cfg-fc-mpm',
+    'cena': 'cfg-fc-cena',
+    'corroborar': 'cfg-fc-corroborar'
+  };
+
+  const inputEl = document.getElementById(idMap[comidaKey]);
+  if (inputEl && inputEl.value !== '') {
+    return parseFloat(inputEl.value) || 30;
+  }
+
+  if (config.fc && typeof config.fc === 'object') {
+    return parseFloat(config.fc[comidaKey]) || parseFloat(config.fc.desayuno) || 30;
+  }
+
+  if (typeof config.fc === 'number') {
+    return config.fc;
+  }
+
+  return 30;
+}
 
 window.addEventListener('DOMContentLoaded', async () => {
   setTimeout(() => { 
@@ -740,12 +802,27 @@ window.addEventListener('DOMContentLoaded', async () => {
   const configGuardada = localStorage.getItem('polar_config');
   if (configGuardada) { 
       config = JSON.parse(configGuardada); 
+      if (typeof config.ratios === 'undefined') config.ratios = { desayuno: 4, mam: 0, almuerzo: 5, mpm: 5, cena: 14, corroborar: 0 };
       if (typeof config.ratios.corroborar === 'undefined') config.ratios.corroborar = 0; 
       if (typeof config.peso === 'undefined') config.peso = 50; 
       if (typeof config.avatar === 'undefined') config.avatar = 0;
       if (typeof config.tema === 'undefined') config.tema = "elite"; 
       if (typeof config.metas === 'undefined') config.metas = { antes: 100, correccion: 150 };
-      if (typeof config.fcAlmuerzo === 'undefined') config.fcAlmuerzo = null;
+
+      // Compatibilidad segura si antes era un número o no existía
+      if (typeof config.fc === 'number' || typeof config.fc === 'string') {
+        const valFc = parseFloat(config.fc) || 30;
+        config.fc = { desayuno: valFc, mam: valFc, almuerzo: valFc, mpm: valFc, cena: valFc, corroborar: valFc };
+      } else if (!config.fc || typeof config.fc !== 'object') {
+        config.fc = { desayuno: 30, mam: 30, almuerzo: 30, mpm: 30, cena: 30, corroborar: 30 };
+      } else {
+        if (typeof config.fc.desayuno === 'undefined') config.fc.desayuno = 30;
+        if (typeof config.fc.mam === 'undefined') config.fc.mam = 30;
+        if (typeof config.fc.almuerzo === 'undefined') config.fc.almuerzo = 30;
+        if (typeof config.fc.mpm === 'undefined') config.fc.mpm = 30;
+        if (typeof config.fc.cena === 'undefined') config.fc.cena = 30;
+        if (typeof config.fc.corroborar === 'undefined') config.fc.corroborar = 30;
+      }
   }
 
   const estadoRedondeoGuardado = localStorage.getItem('polar_redondeo_activo');
@@ -753,14 +830,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     usoRedondeoElite = (estadoRedondeoGuardado === 'true');
   }
   
-  document.getElementById('cfg-tema').value = config.tema; aplicarTemaReal(config.tema);
+  document.getElementById('cfg-tema').value = config.tema; 
+  aplicarTemaReal(config.tema);
 
   document.getElementById('cfg-peso').value = config.peso;
   document.getElementById('cfg-toujeo').value = config.toujeo; 
-  document.getElementById('cfg-fc').value = config.fc; 
-  if(document.getElementById('cfg-fc-alm')) {
-      document.getElementById('cfg-fc-alm').value = config.fcAlmuerzo !== null ? config.fcAlmuerzo : '';
-  }
+
+  // Poblar casillas individuales de Factor de Corrección
+  if (document.getElementById('cfg-fc-desayuno')) document.getElementById('cfg-fc-desayuno').value = config.fc.desayuno;
+  if (document.getElementById('cfg-fc-mam')) document.getElementById('cfg-fc-mam').value = config.fc.mam;
+  if (document.getElementById('cfg-fc-alm')) document.getElementById('cfg-fc-alm').value = config.fc.almuerzo;
+  if (document.getElementById('cfg-fc-mpm')) document.getElementById('cfg-fc-mpm').value = config.fc.mpm;
+  if (document.getElementById('cfg-fc-cena')) document.getElementById('cfg-fc-cena').value = config.fc.cena;
+  if (document.getElementById('cfg-fc-corroborar')) document.getElementById('cfg-fc-corroborar').value = config.fc.corroborar;
+
   document.getElementById('cfg-tel-emergencia').value = config.telEmergencia; 
   document.getElementById('cfg-tel-papa').value = config.telPapa;
   
@@ -775,39 +858,79 @@ window.addEventListener('DOMContentLoaded', async () => {
   
   actualizarDropdownMetas(); 
   actualizarRecordatoriosUI();
-  actualizarTextosComida(); renderCitas(); renderGraficoPicos(); verificarCitasProximas(); cargarAvatar(); actualizarBotonRedondeoUI();
+  actualizarTextosComida(); 
+  renderCitas(); 
+  renderGraficoPicos(); 
+  verificarCitasProximas(); 
+  cargarAvatar(); 
+  actualizarBotonRedondeoUI();
   autoSeleccionarComida(); 
 
   document.getElementById('btn-llamar-emergencia').href = "tel:" + config.telEmergencia;
   document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
 
-  const btnInstall = document.getElementById('btn-install'); const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if (!isStandalone) { if (isIOS) { btnInstall.style.display = 'flex'; } }
+  const btnInstall = document.getElementById('btn-install'); 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (!isStandalone && isIOS) { 
+    btnInstall.style.display = 'flex'; 
+  }
   
   switchTab('home');
   actualizarRadar();
 });
 
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('btn-install').style.display = 'flex'; });
-function instalarApp() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((choiceResult) => { if (choiceResult.outcome === 'accepted') document.getElementById('btn-install').style.display = 'none'; deferredPrompt = null; }); } else { const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; if (isIOS) document.getElementById('ios-modal').style.display = 'flex'; else alert("Instala desde las opciones de tu navegador."); } }
+window.addEventListener('beforeinstallprompt', (e) => { 
+  e.preventDefault(); 
+  deferredPrompt = e; 
+  document.getElementById('btn-install').style.display = 'flex'; 
+});
+
+function instalarApp() { 
+  if (deferredPrompt) { 
+    deferredPrompt.prompt(); 
+    deferredPrompt.userChoice.then((choiceResult) => { 
+      if (choiceResult.outcome === 'accepted') document.getElementById('btn-install').style.display = 'none'; 
+      deferredPrompt = null; 
+    }); 
+  } else { 
+    alert("Instala desde las opciones de tu navegador agregando a pantalla de inicio."); 
+  } 
+}
 
 function toggleMenuPanel() {
-  const panel = document.getElementById('panel-menu'); const overlay = document.getElementById('panel-overlay'); document.getElementById('panel-recetas').classList.remove('open');
-  if (panel.classList.contains('open')) { panel.classList.remove('open'); overlay.classList.remove('active'); } else { panel.classList.add('open'); overlay.classList.add('active'); }
+  const panel = document.getElementById('panel-menu'); 
+  const overlay = document.getElementById('panel-overlay'); 
+  if (panel.classList.contains('open')) { 
+    panel.classList.remove('open'); 
+    overlay.classList.remove('active'); 
+  } else { 
+    panel.classList.add('open'); 
+    overlay.classList.add('active'); 
+  }
 }
 
-function toggleRecetasPanel() {
-  const panel = document.getElementById('panel-recetas'); const overlay = document.getElementById('panel-overlay'); document.getElementById('panel-menu').classList.remove('open');
-  if (panel.classList.contains('open')) { panel.classList.remove('open'); overlay.classList.remove('active'); } else { panel.classList.add('open'); overlay.classList.add('active'); }
+function cerrarOverlays() { 
+  document.getElementById('panel-menu').classList.remove('open'); 
+  document.getElementById('panel-overlay').classList.remove('active'); 
 }
-
-function cerrarOverlays() { document.getElementById('panel-recetas').classList.remove('open'); document.getElementById('panel-menu').classList.remove('open'); document.getElementById('panel-overlay').classList.remove('active'); }
 
 function agregarCita() {
-  const f = document.getElementById('cita-fecha').value; const h = document.getElementById('cita-hora').value; const e = document.getElementById('cita-especialista').value.trim();
+  const f = document.getElementById('cita-fecha').value; 
+  const h = document.getElementById('cita-hora').value; 
+  const e = document.getElementById('cita-especialista').value.trim();
   if (!f || !h || !e) { alert("Llena todo para agendar con excelencia."); return; }
-  let citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); citas.push({ id: Date.now(), fecha: f, hora: h, specialist: e }); citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-  localStorage.setItem('citas_polar', JSON.stringify(citas)); document.getElementById('cita-fecha').value = ''; document.getElementById('cita-hora').value = ''; document.getElementById('cita-especialista').value = ''; renderCitas(); verificarCitasProximas();
+  
+  let citas = JSON.parse(localStorage.getItem('citas_polar') || '[]'); 
+  citas.push({ id: Date.now(), fecha: f, hora: h, specialist: e }); 
+  citas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  
+  localStorage.setItem('citas_polar', JSON.stringify(citas)); 
+  document.getElementById('cita-fecha').value = ''; 
+  document.getElementById('cita-hora').value = ''; 
+  document.getElementById('cita-especialista').value = ''; 
+  renderCitas(); 
+  verificarCitasProximas();
   agregarAlCalendario(e, f, h);
 }
 
@@ -824,16 +947,21 @@ function agregarAlCalendario(especialista, fecha, hora) {
   const start = fecha.replace(/-/g, '') + 'T' + hora.replace(':', '') + '00';
   let horaFin = String(parseInt(hora.split(':')[0]) + 1).padStart(2, '0');
   if (horaFin === '24') horaFin = '00';
-  const end = fecha.replace(/-/g, '') + 'T' + horaFin + hora.split(':')[1] + '00';
+  const end = fecha.replace(/-/g, '') + 'T' + horaFin + hora.split(':') + '00';
   const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Cita+Médica:+${encodeURIComponent(especialista)}&dates=${start}/${end}&details=Cita+agendada+desde+Polar`;
   window.open(url, '_blank');
 }
 
 function renderCitas() {
-  const lista = document.getElementById('lista-citas'); const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]');
-  if (citas.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">No hay citas pendientes.</p>'; return; }
+  const lista = document.getElementById('lista-citas'); 
+  const citas = JSON.parse(localStorage.getItem('citas_polar') || '[]');
+  if (citas.length === 0) { 
+    lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">No hay citas pendientes.</p>'; 
+    return; 
+  }
   lista.innerHTML = citas.map(cita => {
-    const pF = cita.fecha.split('-'); const fechaLimpia = `${pF[2]}/${pF[1]}/${pF[0]}`;
+    const pF = cita.fecha.split('-'); 
+    const fechaLimpia = `${pF}/${pF}/${pF[0]}`;
     return `<div class="cita-card">
       <div>
         <div class="cita-titulo">${cita.specialist || cita.especialista}</div>
@@ -856,7 +984,6 @@ function verificarCitasProximas() {
     if (cita.fecha === isoHoy) {
       const keyNotif = `notif_cita_hoy_${cita.fecha}_${cita.hora}`;
       if (!localStorage.getItem(keyNotif)) {
-        
         if (Notification.permission !== "granted") {
           Notification.requestPermission();
         }
@@ -886,7 +1013,7 @@ function generarPDFElite() {
     
     const opt = {
       margin:       15,
-      filename:     'Reporte_Diario_Polar.pdf',
+      filename:     'Reporte_Clinico_Polar.pdf',
       image:        { type: 'jpeg', quality: 1 },
       html2canvas:  { scale: 2, useCORS: true },
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -904,7 +1031,7 @@ function generarPDFElite() {
       <h3 style="color: #088387; margin-bottom: 12px; font-size: 18px; margin-top:0; font-weight: 900;">Esquema Médico Actual</h3>
       <ul style="font-size: 14px; line-height: 1.6; list-style: none; padding: 0; margin: 0; font-weight: 700;">
         <li><strong>Basal (Toujeo):</strong> ${config.toujeo} U</li>
-        <li><strong>Factor Corrección:</strong> 1 U baja ${config.fc} mg/dL</li>
+        <li><strong>Factores de Corrección:</strong> Des: ${config.fc.desayuno} | Once: ${config.fc.mam} | Alm: ${config.fc.almuerzo} | PM: ${config.fc.mpm} | Cena: ${config.fc.cena} | Rev: ${config.fc.corroborar}</li>
         <li><strong>Ratios:</strong> Desayuno R${config.ratios.desayuno} | Once R${config.ratios.mam} | Almuerzo R${config.ratios.almuerzo} | PM R${config.ratios.mpm} | Cena R${config.ratios.cena}</li>
       </ul>
     </div>`;
@@ -956,14 +1083,20 @@ function generarPDFElite() {
 async function guardarConfig() {
   config.peso = parseFloat(document.getElementById('cfg-peso').value) || 50;
   config.toujeo = parseFloat(document.getElementById('cfg-toujeo').value) || 0; 
-  config.fc = parseFloat(document.getElementById('cfg-fc').value) || 1; 
-  
-  let valAlm = document.getElementById('cfg-fc-alm').value;
-  config.fcAlmuerzo = valAlm ? parseFloat(valAlm) : null;
-  
   config.telEmergencia = document.getElementById('cfg-tel-emergencia').value || "131"; 
   config.telPapa = document.getElementById('cfg-tel-papa').value || "973808283";
   
+  // Guardar Factores de Corrección Individuales
+  if (!config.fc || typeof config.fc !== 'object') {
+    config.fc = {};
+  }
+  if (document.getElementById('cfg-fc-desayuno')) config.fc.desayuno = parseFloat(document.getElementById('cfg-fc-desayuno').value) || 30;
+  if (document.getElementById('cfg-fc-mam')) config.fc.mam = parseFloat(document.getElementById('cfg-fc-mam').value) || 30;
+  if (document.getElementById('cfg-fc-alm')) config.fc.almuerzo = parseFloat(document.getElementById('cfg-fc-alm').value) || 30;
+  if (document.getElementById('cfg-fc-mpm')) config.fc.mpm = parseFloat(document.getElementById('cfg-fc-mpm').value) || 30;
+  if (document.getElementById('cfg-fc-cena')) config.fc.cena = parseFloat(document.getElementById('cfg-fc-cena').value) || 30;
+  if (document.getElementById('cfg-fc-corroborar')) config.fc.corroborar = parseFloat(document.getElementById('cfg-fc-corroborar').value) || 30;
+
   let valAntes = document.getElementById('cfg-meta-antes').value;
   let valCor = document.getElementById('cfg-meta-cor').value;
 
@@ -980,7 +1113,6 @@ async function guardarConfig() {
   if(document.getElementById('cfg-r-cena')) config.ratios.cena = parseFloat(document.getElementById('cfg-r-cena').value) || 0;
   
   localStorage.setItem('polar_config', JSON.stringify(config));
-  
   polarDb.auth.updateUser({ data: { config_elite: config } });
   
   actualizarRecordatoriosUI();
@@ -991,7 +1123,7 @@ async function guardarConfig() {
   document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
 
   switchTab('home'); 
-  alert("Metas y control médico guardados con excelencia.");
+  alert("Metas, factores de corrección y control guardados con éxito.");
 }
 
 function actualizarDropdownMetas() {
@@ -1058,11 +1190,11 @@ function actualizarTextosComida() {
   const ratioCena = document.getElementById('cfg-r-cena') ? document.getElementById('cfg-r-cena').value : config.ratios.cena;
 
   s.options[0].text = `DESAYUNO (R${ratioDes})`; 
-  s.options[1].text = `ONCE (R${ratioMam})`; 
-  s.options[2].text = `ALMUERZO (R${ratioAlm})`; 
-  s.options[3].text = `MERIENDA TARDE (R${ratioMpm})`; 
-  s.options[4].text = `CENA (R${ratioCena})`; 
-  if(s.options[5]) s.options[5].text = `CORROBORAR (SOLO CORRECCIÓN)`;
+  s.options.text = `ONCE (R${ratioMam})`; 
+  s.options.text = `ALMUERZO (R${ratioAlm})`; 
+  s.options.text = `MERIENDA TARDE (R${ratioMpm})`; 
+  s.options.text = `CENA (R${ratioCena})`; 
+  if(s.options) s.options.text = `CORROBORAR (SOLO CORRECCIÓN)`;
   
   const meal = s.value;
   const inputActivo = document.getElementById('cfg-r-' + meal);
@@ -1080,8 +1212,17 @@ function actualizarTextosComida() {
   }
 }
 
-function despertarPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('sleeping'); b.classList.add('awake'); }
-function dormirPolar() { const b = document.getElementById('polar-bear'); b.classList.remove('awake'); b.classList.add('sleeping'); }
+function despertarPolar() { 
+  const b = document.getElementById('polar-bear'); 
+  b.classList.remove('sleeping'); 
+  b.classList.add('awake'); 
+}
+
+function dormirPolar() { 
+  const b = document.getElementById('polar-bear'); 
+  b.classList.remove('awake'); 
+  b.classList.add('sleeping'); 
+}
 
 function setTendencia(val, fromNav = false) {
     const inputTrend = document.getElementById('tendencia');
@@ -1114,7 +1255,6 @@ function guardarDosisAplicada(e, dosis, glucosa, carbos, tipoComida) {
   ]).then(({ error }) => {
       if (error) throw error;
   }).catch((err) => {
-      console.warn("Offline guardado en cola: ", err);
       let colaSync = JSON.parse(localStorage.getItem('polar_cola_sync') || '[]');
       colaSync.push({ paciente_id: userId, glucosa: glucosa, carbos: carbos, dosis: dosis, tipo_comida: tipoComida, created_at: new Date().toISOString() });
       localStorage.setItem('polar_cola_sync', JSON.stringify(colaSync));
@@ -1133,14 +1273,26 @@ function guardarDosisAplicada(e, dosis, glucosa, carbos, tipoComida) {
 }
 
 function actualizarVistaHistorial() {
-  const lista = document.getElementById('lista-historial'); const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
-  if (historial.length === 0) { lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">Aún no hay registros.</p>'; return; }
+  const lista = document.getElementById('lista-historial'); 
+  const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+  if (historial.length === 0) { 
+    lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">Aún no hay registros.</p>'; 
+    return; 
+  }
   const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda tarde', 'cena': 'Cena', 'corroborar': 'Corroboración', 'post-comida': '2 Horas Post-Comida' };
-  let html = ''; let fechaAgrupada = ''; const hOrd = historial.slice(); 
+  let html = ''; 
+  let fechaAgrupada = ''; 
+  const hOrd = historial.slice(); 
   
   hOrd.forEach(item => {
-    const nom = item.tipoComida ? dict[item.tipoComida] : 'Manual'; const partes = item.fecha.split(', '); const dS = partes[0]; const hS = partes[1] || item.fecha;
-    if (dS !== fechaAgrupada) { fechaAgrupada = dS; html += `<div class="historial-fecha-bloque">${dS}</div>`; }
+    const nom = item.tipoComida ? dict[item.tipoComida] : 'Manual'; 
+    const partes = item.fecha.split(', '); 
+    const dS = partes[0]; 
+    const hS = partes || item.fecha;
+    if (dS !== fechaAgrupada) { 
+      fechaAgrupada = dS; 
+      html += `<div class="historial-fecha-bloque">${dS}</div>`; 
+    }
     let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
     let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
 
@@ -1187,20 +1339,21 @@ async function borrarHistorialCompleto() {
 }
 
 function sugerirEsquema() {
-  const h = JSON.parse(localStorage.getItem('historial_polar') || '[]'); if (h.length === 0) { alert("Registra datos primero, líder."); return; }
-  const ah = new Date(); const h2d = new Date(); h2d.setDate(ah.getDate() - 2); const ult = h.filter(i => { if (!i.iso) return false; return new Date(i.iso) >= h2d; });
+  const h = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
+  if (h.length === 0) { alert("Registra datos primero, líder."); return; }
+  const ah = new Date(); 
+  const h2d = new Date(); 
+  h2d.setDate(ah.getDate() - 2); 
+  const ult = h.filter(i => { if (!i.iso) return false; return new Date(i.iso) >= h2d; });
   if (ult.length === 0) { alert("No hay mediciones en los últimos 2 días."); return; }
-  let s = 0; let c = 0; ult.forEach(r => { if (r.glucosa && r.glucosa > 0) { s += Number(r.glucosa); c++; } }); if (c === 0) return;
-  const p = s / c; let m = "";
-  if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).
-
-Sugerencia: Liderazgo aquí. Aumenta Toujeo en 1 o 2 U o ajusta ratios. Revisa con médico.`;
-  else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).
-
-Sugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
-  else m = `Promedio EXCELENTE (${p.toFixed(0)}).
-
-Sugerencia: Estás dominando al 100%. Mantén el esquema.`;
+  let s = 0; let c = 0; 
+  ult.forEach(r => { if (r.glucosa && r.glucosa > 0) { s += Number(r.glucosa); c++; } }); 
+  if (c === 0) return;
+  const p = s / c; 
+  let m = "";
+  if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).\n\nSugerencia: Liderazgo aquí. Aumenta Toujeo en 1 o 2 U o ajusta ratios y factores de corrección. Revisa con médico.`;
+  else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).\n\nSugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
+  else m = `Promedio EXCELENTE (${p.toFixed(0)}).\n\nSugerencia: Estás dominando al 100%. Mantén el esquema.`;
   alert(m);
 }
 
@@ -1231,15 +1384,23 @@ function renderGraficoPicos() {
   const isDarkBg = ['oscuro', 'halloween'].includes(config.tema);
   const textCol = isDarkBg ? '#FFFFFF' : '#000000';
 
-  const paddingX = 40; const paddingY = 30; const gridW = width - paddingX * 2; const gridH = height - paddingY * 2;
+  const paddingX = 40; 
+  const paddingY = 30; 
+  const gridW = width - paddingX * 2; 
+  const gridH = height - paddingY * 2;
 
   ctx.strokeStyle = 'rgba(44, 58, 64, 0.15)'; 
   ctx.lineWidth = 1;
   for(let i=0; i<=4; i++) { ctx.beginPath(); let y = paddingY + (i * (gridH/4)); ctx.moveTo(paddingX, y); ctx.lineTo(width - paddingX, y); ctx.stroke(); }
   for(let i=0; i<=6; i++) { ctx.beginPath(); let x = paddingX + (i * (gridW/6)); ctx.moveTo(x, paddingY); ctx.lineTo(x, height - paddingY); ctx.stroke(); }
 
-  ctx.fillStyle = 'var(--text-primary)'; ctx.font = 'bold 12px Nunito'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  ctx.fillText('400', paddingX - 8, paddingY); ctx.fillText('200', paddingX - 8, paddingY + (gridH/2)); ctx.fillText('0', paddingX - 8, paddingY + gridH);
+  ctx.fillStyle = 'var(--text-primary)'; 
+  ctx.font = 'bold 12px Nunito'; 
+  ctx.textAlign = 'right'; 
+  ctx.textBaseline = 'middle';
+  ctx.fillText('400', paddingX - 8, paddingY); 
+  ctx.fillText('200', paddingX - 8, paddingY + (gridH/2)); 
+  ctx.fillText('0', paddingX - 8, paddingY + gridH);
 
   renderBarrasPorcentaje();
 
@@ -1249,24 +1410,25 @@ function renderGraficoPicos() {
       return new Date(item.iso + 'T00:00:00').getTime(); 
   };
 
-  const historialSemana = historialCompleto.filter(item => {
-      return parseItemTime(item) >= inicioSemana;
-  });
+  const historialSemana = historialCompleto.filter(item => parseItemTime(item) >= inicioSemana);
 
   if (historialSemana.length === 0) {
-      ctx.fillStyle = textCol; ctx.font = '800 15px Nunito'; ctx.textAlign = 'center';
+      ctx.fillStyle = textCol; 
+      ctx.font = '800 15px Nunito'; 
+      ctx.textAlign = 'center';
       ctx.fillText('Nueva semana iniciada. Registra para ver puntos.', width / 2, height / 2);
       return;
   }
 
   const puntos = historialSemana.slice(-15);
-  const maxVal = 400; const minVal = 0; 
+  const maxVal = 400; 
+  const minVal = 0; 
   
   const minTimeVal = Math.min(...puntos.map(parseItemTime));
   const maxTimeVal = Math.max(...puntos.map(parseItemTime));
   const timeRange = maxTimeVal - minTimeVal || 1; 
 
-  const coords = puntos.map((item, index) => {
+  const coords = puntos.map((item) => {
       let val = parseFloat(item.glucosa) || 100;
       if (isNaN(val) || String(item.glucosa).toUpperCase() === 'HI') val = 600;
       
@@ -1280,16 +1442,17 @@ function renderGraficoPicos() {
 
   window.graficoCoordsGlobal = coords.map((c, i) => {
       const item = puntos[i];
-      const timePart = item.fecha.split(', ')[1] || item.fecha; 
+      const timePart = item.fecha.split(', ') || item.fecha; 
       return { x: c.x, y: c.y, val: c.val, time: timePart };
   });
 
-  ctx.strokeStyle = (config.tema === 'oscuro' || config.tema === 'halloween' || config.tema === 'neon') ? '#FFFFFF' : '#2C3A40';
-  ctx.lineWidth = 3; ctx.beginPath();
+  ctx.strokeStyle = (config.tema === 'oscuro' || config.tema === 'halloween') ? '#FFFFFF' : '#2C3A40';
+  ctx.lineWidth = 3; 
+  ctx.beginPath();
   coords.forEach((c, i) => { if (i === 0) ctx.moveTo(c.x, c.y); else ctx.lineTo(c.x, c.y); });
   ctx.stroke();
 
-  coords.forEach((c, i) => {
+  coords.forEach((c) => {
       let colorNodo = '#4CAF50'; 
       if (c.val < 55) colorNodo = '#FF3B30';
       else if (c.val < 81) colorNodo = '#FF9F0A';
@@ -1297,8 +1460,13 @@ function renderGraficoPicos() {
       else if (c.val < 301) colorNodo = '#1B5E20';
       else colorNodo = '#FF3B30';
 
-      ctx.fillStyle = colorNodo; ctx.beginPath(); ctx.arc(c.x, c.y, 7, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = colorNodo; 
+      ctx.beginPath(); 
+      ctx.arc(c.x, c.y, 7, 0, Math.PI * 2); 
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF'; 
+      ctx.lineWidth = 2; 
+      ctx.stroke();
   });
 
   if(!tooltipListenerAdded) {
@@ -1306,7 +1474,6 @@ function renderGraficoPicos() {
           if (e.type === 'touchstart') e.preventDefault(); 
 
           const rect = canvas.getBoundingClientRect();
-          
           let clientX, clientY;
           if (e.touches && e.touches.length > 0) {
               clientX = e.touches[0].clientX;
@@ -1429,26 +1596,15 @@ function calcular(esNav = false) {
   const ratio = inputRatio ? parseFloat(inputRatio.value) : (config.ratios[comidaKey] || 0);
   const factorEj = parseFloat(document.getElementById('ejercicio').value); 
   
-  const inputFc = document.getElementById('cfg-fc');
-  let fc = inputFc ? parseFloat(inputFc.value) : config.fc; 
-  
-  if (comidaKey === 'almuerzo') {
-      const inputFcAlm = document.getElementById('cfg-fc-alm');
-      if (inputFcAlm && inputFcAlm.value !== "") {
-          fc = parseFloat(inputFcAlm.value);
-      } else if (config.fcAlmuerzo !== undefined && config.fcAlmuerzo !== null) {
-          fc = config.fcAlmuerzo;
-      }
-  }
-
+  // Factor de corrección adaptado a la comida seleccionada
+  const fc = obtenerFcComida(comidaKey);
   const resDiv = document.getElementById('resultado');
 
+  // Cálculos exactos
   let dosisComidaExacta = (ratio === 0) ? 0 : (carbos / ratio);
-  let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : dosisComidaExacta;
   let dosisCorreccionExacta = (glucosa > metaRestar) ? (glucosa - metaRestar) / fc : 0; 
-  let dosisCorreccion = usoRedondeoElite ? redondeoElite(dosisCorreccionExacta) : dosisCorreccionExacta;
 
-  let dosisTotal = (dosisComida + dosisCorreccion) * factorEj;
+  let dosisTotal = (dosisComidaExacta + dosisCorreccionExacta) * factorEj;
 
   let ajusteTendencia = "";
   if (tendenciaVal === 'bajando') {
@@ -1461,7 +1617,11 @@ function calcular(esNav = false) {
 
   if (glucosa <= 70 && glucosa > 54) { dosisTotal -= 2; }
   if (dosisTotal < 0) dosisTotal = 0; 
+
+  // REDONDEO: si da 7,5 -> 8; si da 7,4 hacia abajo -> 7
   let dosisFinal = usoRedondeoElite ? redondeoElite(dosisTotal) : Math.round(dosisTotal * 10) / 10;
+  let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : Math.round(dosisComidaExacta * 10) / 10;
+  let dosisCorreccion = usoRedondeoElite ? redondeoElite(dosisCorreccionExacta) : Math.round(dosisCorreccionExacta * 10) / 10;
 
   let protocoloClinicoHTML = "";
   let colorNumeroGemas = "var(--turquoise-strong)";
@@ -1510,7 +1670,7 @@ function calcular(esNav = false) {
     <div class="result-unit" style="margin-bottom: 4px;">Gemas Ultra para Polar</div>
     <div class="result-details" style="margin-top: 0px;">
       Por Comida: <strong>${dosisComida} U</strong> (R${ratio})<br>
-      Por Energía: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar})
+      Por Energía: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar} | FC: ${fc})
       ${ajusteTendencia}
       ${protocoloClinicoHTML}
     </div>
@@ -1518,10 +1678,15 @@ function calcular(esNav = false) {
       ${btnAtras}${btnAdel}
     </div>`;
     
-  resDiv.style.display = "block"; despertarPolar(); 
+  resDiv.style.display = "block"; 
+  despertarPolar(); 
 }
 
-if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(e => console.log('Error SW:', e)); }); }
+if ('serviceWorker' in navigator) { 
+  window.addEventListener('load', () => { 
+    navigator.serviceWorker.register('./sw.js').catch(e => console.log('Error SW:', e)); 
+  }); 
+}
 
 let startX = 0;
 const panelMenu = document.getElementById('panel-menu');
