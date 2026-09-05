@@ -1,9 +1,11 @@
-const CACHE_NAME = 'polar-elite-cache-v2';
+const CACHE_NAME = 'polar-elite-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './polar-logo.png',
+  './styles.css',
+  './app.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap'
@@ -17,12 +19,14 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// 2. ACTIVACIÓN
+// 2. ACTIVACIÓN Y LIMPIEZA DE CACHÉ ANTIGUO
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((name) => { if (name !== CACHE_NAME) return caches.delete(name); })
+        cacheNames.map((name) => { 
+          if (name !== CACHE_NAME) return caches.delete(name); 
+        })
       );
     })
   );
@@ -50,7 +54,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// 4. NOTIFICACIONES PUSH (NUEVO)
+// 4. NOTIFICACIONES PUSH
 self.addEventListener('push', (event) => {
   let data = { title: 'Alerta Polar', body: 'Notificación del sistema Polar', icon: 'polar-logo.png' };
   if (event.data) {
