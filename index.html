@@ -101,7 +101,8 @@
       </div>
     </div>
 
-    <div class="grid" id="main-calculator">
+    <!-- CALCULADORA PRINCIPAL OPTIMIZADA PARA IPHONE, ANDROID Y MAC -->
+    <form class="grid" id="main-calculator" onsubmit="event.preventDefault(); document.activeElement && document.activeElement.blur(); calcular(false); return false;">
       <div class="card card-meal card-full">
         <label for="comida" style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">Agregar comida</label>
         <select id="comida" onchange="actualizarTextosComida(); this.dataset.manual = 'true'; calcular(false);">
@@ -116,7 +117,11 @@
 
       <div class="card card-glucose">
         <label for="glucosa" style="color: inherit; font-size: 17px;">Nivel de Energía</label>
-        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" oninput="dormirPolar(); autoFocoCarbos()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
+        <input type="number" id="glucosa" placeholder="Ej: 110" inputmode="numeric" enterkeyhint="next"
+               oninput="dormirPolar(); autoFocoCarbos()" 
+               onfocus="document.getElementById('resultado').style.display='none';" 
+               onkeydown="if(event.key === 'Enter' || event.keyCode === 13 || event.which === 13) { event.preventDefault(); document.getElementById('carbos').focus(); }"
+               onchange="if(document.getElementById('comida').value === 'corroborar') calcular(false);">
         
         <input type="hidden" id="tendencia" value="estable">
 
@@ -126,15 +131,22 @@
 
       <div class="card card-carbs" style="display: flex; flex-direction: column; gap: 10px;">
         <label for="carbos" id="label-carbos" style="margin-bottom: 2px; color: inherit; font-size: 17px;">comida CHO R4</label>
-        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" oninput="dormirPolar()" onfocus="document.getElementById('resultado').style.display='none';" onkeydown="if(event.key === 'Enter') { this.blur(); calcular(false); }">
+        <input type="number" id="carbos" placeholder="Ej: 30" inputmode="numeric" enterkeyhint="go"
+               oninput="dormirPolar()" 
+               onfocus="document.getElementById('resultado').style.display='none';" 
+               onkeydown="if(event.key === 'Enter' || event.keyCode === 13 || event.which === 13) { event.preventDefault(); this.blur(); calcular(false); }"
+               onchange="if(this.value !== '') calcular(false);">
         
         <label style="font-size: 15px; margin-bottom: 4px; margin-top: 6px; text-align: center; width: 100%; display: block; color: inherit;">¿Correrá mucho?</label>
         <input type="hidden" id="ejercicio" value="1">
-        <button id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
+        <button type="button" id="btn-ejercicio" class="btn-accent" style="padding: 10px 16px; font-size: 15px; margin: 0; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background: #4CAF50; color: #FFFFFF; border-radius: 12px; font-weight: 900;" onclick="ciclarEjercicio()">Tranquilo</button>
       </div>
+
+      <!-- BOTÓN DIRECTO DE CÁLCULO -->
+      <button type="submit" class="btn-main card-full" style="margin-top: 4px;">Calcular Dosis</button>
       
       <div id="resultado" class="result-box"></div>
-    </div>
+    </form>
 
     <!-- RADAR: ÚLTIMOS REGISTROS -->
     <div id="radar-precision" style="display: none; margin-bottom: 20px; padding: 16px; background: var(--white); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03);">
