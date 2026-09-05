@@ -612,14 +612,14 @@ function actualizarBotonRedondeoUI() {
     }
 }
 
-// REGLA EXACTA DE REDONDEO SOLICITADA:
-// 7,5 unidades -> 8
-// 7,4 hacia abajo -> 7
+// REGLA EXACTA DE REDONDEO:
+// Si la parte decimal es >= 0.5 (ej: 8.5, 8.6, etc.) -> redondea hacia arriba (ej: 9)
+// Si la parte decimal es <= 0.499... (ej: 8.4 hacia abajo, 8.1, 8.0) -> se queda en el entero (ej: 8)
 function redondeoElite(valor) {
-  if (!usoRedondeoElite) return valor;
-  const valRedondeado = Math.round(valor * 100) / 100;
-  const entero = Math.floor(valRedondeado);
-  const decimal = valRedondeado - entero;
+  if (!usoRedondeoElite) return Math.round(valor * 10) / 10;
+  const valorLimpio = Math.round(valor * 100) / 100;
+  const entero = Math.floor(valorLimpio);
+  const decimal = Math.round((valorLimpio - entero) * 100) / 100;
   if (decimal >= 0.5) {
     return entero + 1;
   }
@@ -633,7 +633,6 @@ let calcHistoria = [];
 let calcPosicion = -1;
 let tooltipListenerAdded = false;
 
-// Configuración inicial con factores de corrección por comida
 let config = {
   peso: 50, 
   toujeo: 56, 
@@ -748,7 +747,6 @@ function obtenerFechaLocalISO() {
   return new Date(ahora.getTime() - tzOffset).toISOString().split('T')[0]; 
 }
 
-// Obtener el Factor de Corrección exacto según la comida
 function obtenerFcComida(comidaKey) {
   const idMap = {
     'desayuno': 'cfg-fc-desayuno',
@@ -809,7 +807,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       if (typeof config.tema === 'undefined') config.tema = "elite"; 
       if (typeof config.metas === 'undefined') config.metas = { antes: 100, correccion: 150 };
 
-      // Compatibilidad segura si antes era un número o no existía
       if (typeof config.fc === 'number' || typeof config.fc === 'string') {
         const valFc = parseFloat(config.fc) || 30;
         config.fc = { desayuno: valFc, mam: valFc, almuerzo: valFc, mpm: valFc, cena: valFc, corroborar: valFc };
@@ -836,7 +833,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('cfg-peso').value = config.peso;
   document.getElementById('cfg-toujeo').value = config.toujeo; 
 
-  // Poblar casillas individuales de Factor de Corrección
   if (document.getElementById('cfg-fc-desayuno')) document.getElementById('cfg-fc-desayuno').value = config.fc.desayuno;
   if (document.getElementById('cfg-fc-mam')) document.getElementById('cfg-fc-mam').value = config.fc.mam;
   if (document.getElementById('cfg-fc-alm')) document.getElementById('cfg-fc-alm').value = config.fc.almuerzo;
@@ -1086,7 +1082,6 @@ async function guardarConfig() {
   config.telEmergencia = document.getElementById('cfg-tel-emergencia').value || "131"; 
   config.telPapa = document.getElementById('cfg-tel-papa').value || "973808283";
   
-  // Guardar Factores de Corrección Individuales
   if (!config.fc || typeof config.fc !== 'object') {
     config.fc = {};
   }
@@ -1595,31 +1590,33 @@ function calcular(esNav = false) {
   const inputRatio = document.getElementById('cfg-r-' + comidaKey);
   const ratio = inputRatio ? parseFloat(inputRatio.value) : (config.ratios[comidaKey] || 0);
   const factorEj = parseFloat(document.getElementById('ejercicio').value); 
-  
-  // Factor de corrección adaptado a la comida seleccionada
   const fc = obtenerFcComida(comidaKey);
   const resDiv = document.getElementById('resultado');
 
-  // Cálculos exactos
+  // 1. CÁLCULO EXACTO SIN REDONDEAR PREMATURAMENTE
   let dosisComidaExacta = (ratio === 0) ? 0 : (carbos / ratio);
   let dosisCorreccionExacta = (glucosa > metaRestar) ? (glucosa - metaRestar) / fc : 0; 
 
-  let dosisTotal = (dosisComidaExacta + dosisCorreccionExacta) * factorEj;
+  // Suma exacta antes de factores externos
+  let dosisTotalExacta = (dosisComidaExacta + dosisCorreccionExacta) * factorEj;
 
   let ajusteTendencia = "";
   if (tendenciaVal === 'bajando') {
-      dosisTotal = dosisTotal * 0.8; 
+      dosisTotalExacta = dosisTotalExacta * 0.8; 
       ajusteTendencia = "<br><span style='color:#FF3B30; font-weight:900;'>↓ Reducido 20% por caída rápida</span>";
   } else if (tendenciaVal === 'subiendo') {
-      dosisTotal = dosisTotal * 1.1; 
+      dosisTotalExacta = dosisTotalExacta * 1.1; 
       ajusteTendencia = "<br><span style='color:#FF9F0A; font-weight:900;'>↑ Aumentado 10% por subida rápida</span>";
   }
 
-  if (glucosa <= 70 && glucosa > 54) { dosisTotal -= 2; }
-  if (dosisTotal < 0) dosisTotal = 0; 
+  if (glucosa <= 70 && glucosa > 54) { 
+      dosisTotalExacta -= 2; 
+  }
+  if (dosisTotalExacta < 0) dosisTotalExacta = 0; 
 
-  // REDONDEO: si da 7,5 -> 8; si da 7,4 hacia abajo -> 7
-  let dosisFinal = usoRedondeoElite ? redondeoElite(dosisTotal) : Math.round(dosisTotal * 10) / 10;
+  // 2. APLICACIÓN DE LA REGLA DE REDONDEO:
+  // Si da 8.5 en adelante -> 9. Si da 8.4 hacia abajo (ej. 8.1) -> 8
+  let dosisFinal = usoRedondeoElite ? redondeoElite(dosisTotalExacta) : Math.round(dosisTotalExacta * 10) / 10;
   let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : Math.round(dosisComidaExacta * 10) / 10;
   let dosisCorreccion = usoRedondeoElite ? redondeoElite(dosisCorreccionExacta) : Math.round(dosisCorreccionExacta * 10) / 10;
 
