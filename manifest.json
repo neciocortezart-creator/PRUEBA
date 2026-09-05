@@ -3,8 +3,8 @@
   "short_name": "Polar",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#F0F6F7",
-  "theme_color": "#4A8C8E",
+  "background_color": "#FAF8F5",
+  "theme_color": "#088387",
   "icons": [
     {
       "src": "polar-logo.png",
