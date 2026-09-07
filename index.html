@@ -16,8 +16,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- LIBRERÍA PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- LIBRERÍA CHART.JS PARA PANELES ANALÍTICOS -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- ESTILOS -->
   <link rel="stylesheet" href="styles.css">
@@ -162,7 +160,7 @@
       <button type="submit" class="btn-main card-full" style="margin-top: 4px;">Calcular Dosis</button>
     </form>
 
-    <!-- VENTANA MODAL DE RESULTADO -->
+    <!-- VENTANA MODAL DE RESULTADO: FUERA DEL FORMULARIO -->
     <div id="resultado" class="result-box"></div>
 
     <!-- RADAR: ÚLTIMOS REGISTROS -->
@@ -180,87 +178,110 @@
       <div id="lista-radar" style="display: flex; flex-direction: column; gap: 8px;"></div>
     </div>
 
-    <!-- NUEVO PANEL VISUAL ÉLITE DE GRÁFICAS -->
+    <!-- VISTA DE GRÁFICAS COMPLETA Y ACOMODADA CON EXCELENCIA -->
     <div id="view-graficas" style="display: none;">
-      <div class="panel-graficas-container">
-
-        <!-- CABECERA DEL PANEL -->
-        <div class="card card-full grafica-card-header">
-          <div class="title-flex">
+      
+      <!-- 1. CURVA DE TENDENCIA HORARIA (ÁREA + LÍNEA + PUNTOS) -->
+      <div class="card card-panel-grafico card-full" style="display: block; margin-bottom: 16px;">
+        <h3 class="panel-header-small">
+          <span class="title-flex">
             <div class="icon-26">
-              <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                <path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="var(--turquoise-strong)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
-                <circle cx="12" cy="50" r="7" fill="var(--white)" stroke="var(--turquoise-strong)" stroke-width="3"/>
-                <circle cx="38" cy="28" r="7" fill="var(--accent-btn)"/>
-                <circle cx="50" cy="70" r="7" fill="var(--blue-ice-light)"/>
-                <circle cx="60" cy="18" r="7" fill="var(--blue-ice-mid)"/>
-                <circle cx="88" cy="50" r="7" fill="var(--text-primary)"/>
+              <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><path d="M 12 50 L 28 50 L 38 28 L 50 70 L 60 18 L 72 50 L 88 50" fill="none" stroke="var(--turquoise-strong)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="12" cy="50" r="8" fill="#FFFFFF" stroke="var(--turquoise-strong)" stroke-width="2"/><circle cx="38" cy="28" r="8" fill="#FF5A4D"/><circle cx="50" cy="70" r="8" fill="#A35496"/><circle cx="60" cy="18" r="8" fill="#FCA311"/><circle cx="88" cy="50" r="8" fill="#4B6584"/></svg>
+            </div>
+            Curva de Tendencia
+          </span> 
+          <div class="title-flex">
+            <span id="grafico-mes-label" style="font-size:13px; font-weight:900; color: var(--turquoise-strong); background: rgba(8,131,135,0.1); padding: 4px 10px; border-radius: 20px;">Tiempo Real</span>
+          </div>
+        </h3>
+        <p style="font-size: 13px; font-weight: 700; margin-bottom: 14px; line-height: 1.4;">Toca los puntos en la curva para ver el nivel y hora exactos:</p>
+        
+        <div style="position: relative; background: var(--bg-polar); border-radius: 16px; padding: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.02);">
+          <canvas id="graficoPicos" style="width: 100%; height: 240px; display: block; cursor: pointer;"></canvas>
+          <div id="grafico-tooltip" style="display:none; position:absolute; background:var(--text-primary); color:var(--text-inverse); padding:8px 14px; border-radius:10px; font-size:13px; font-weight:900; pointer-events:none; transform:translate(-50%, -120%); box-shadow:0 8px 20px rgba(0,0,0,0.25); z-index:10; white-space:nowrap;"></div>
+        </div>
+      </div>
+
+      <!-- 2. HISTÓRICO: CARBOHIDRATOS VS DOSIS (BARRAS VERTICALES) -->
+      <div class="card card-panel-grafico card-full" style="display: block; margin-bottom: 16px;">
+        <h3 class="panel-header-small">
+          <span class="title-flex">
+            <div class="icon-26">
+              <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="var(--turquoise-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
             </div>
-            <h2 class="grafica-main-title">Panel Analítico</h2>
-          </div>
-          <span class="grafica-badge-periodo">Tiempo Real</span>
+            Histórico: Carbos vs Dosis
+          </span>
+          <span style="font-size:11px; font-weight:800; opacity:0.7; text-transform:uppercase;">Últimas Comidas</span>
+        </h3>
+        <p style="font-size: 13px; font-weight: 700; margin-bottom: 12px;">Relación entre carbohidratos (CHO) e insulina aplicada (U):</p>
+        
+        <div style="position: relative; background: var(--bg-polar); border-radius: 16px; padding: 10px; text-align: center; border: 1px solid rgba(0,0,0,0.05); box-shadow: inset 0 4px 15px rgba(0,0,0,0.02);">
+          <canvas id="graficoBarrasRatios" style="width: 100%; height: 200px; display: block;"></canvas>
         </div>
-
-        <!-- 1. GRÁFICO DE ÁREA/LÍNEAS (TENDENCIA HORARIA) -->
-        <div class="card grafica-card">
-          <div class="grafica-card-title-row">
-            <h3>Curva de Nivel de Energía</h3>
-            <span class="grafica-sublabel">mg/dL en el tiempo</span>
-          </div>
-          <div class="chart-canvas-wrapper" style="height: 220px;">
-            <canvas id="chartTendenciaHoras"></canvas>
-          </div>
+        <div style="display: flex; justify-content: center; gap: 16px; margin-top: 10px; font-size: 12px; font-weight: 800;">
+          <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: var(--blue-ice-light); border-radius: 3px; display: inline-block;"></span> Carbos (g)</span>
+          <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: var(--turquoise-strong); border-radius: 3px; display: inline-block;"></span> Dosis (U)</span>
         </div>
-
-        <!-- 2. GRÁFICO DE BARRAS VERTICALES (INSULINA VS CARBOHIDRATOS) -->
-        <div class="card grafica-card">
-          <div class="grafica-card-title-row">
-            <h3>Histórico: Carbos vs Dosis</h3>
-            <span class="grafica-sublabel">Últimas comidas (CHO / U)</span>
-          </div>
-          <div class="chart-canvas-wrapper" style="height: 210px;">
-            <canvas id="chartBarrasRatios"></canvas>
-          </div>
-        </div>
-
-        <!-- 3. TRÍO DE DONUTS (DISTRIBUCIÓN PORCENTUAL) -->
-        <div class="card grafica-card">
-          <div class="grafica-card-title-row">
-            <h3>Distribución de Objetivos</h3>
-            <span class="grafica-sublabel">Balance general</span>
-          </div>
-          <div class="donuts-trio-grid">
-            <!-- DONUT 1: EN RANGO -->
-            <div class="donut-item">
-              <div class="donut-canvas-container">
-                <canvas id="chartDonutRango"></canvas>
-                <div class="donut-center-label" id="donut-lbl-rango">0%</div>
-              </div>
-              <span class="donut-caption">En Rango</span>
-            </div>
-
-            <!-- DONUT 2: ALTA -->
-            <div class="donut-item">
-              <div class="donut-canvas-container">
-                <canvas id="chartDonutAlta"></canvas>
-                <div class="donut-center-label" id="donut-lbl-alta">0%</div>
-              </div>
-              <span class="donut-caption">Elevada</span>
-            </div>
-
-            <!-- DONUT 3: BAJA -->
-            <div class="donut-item">
-              <div class="donut-canvas-container">
-                <canvas id="chartDonutBaja"></canvas>
-                <div class="donut-center-label" id="donut-lbl-baja">0%</div>
-              </div>
-              <span class="donut-caption">Baja</span>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      <!-- 3. DISTRIBUCIÓN PORCENTUAL (TRÍO DE DONUTS) -->
+      <div class="card card-panel-grafico card-full" style="display: block; margin-bottom: 16px;">
+        <h3 class="panel-header-small">
+          <span class="title-flex">
+            <div class="icon-26">
+              <svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="var(--turquoise-strong)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a10 10 0 0 1 10 10"></path>
+              </svg>
+            </div>
+            Distribución de Objetivos
+          </span>
+          <span style="font-size:11px; font-weight:800; opacity:0.7; text-transform:uppercase;">Balance Total</span>
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; text-align: center;">
+          <div>
+            <div style="position: relative; width: 85px; height: 85px; margin: 0 auto;">
+              <canvas id="donutRango" style="width: 85px; height: 85px; display: block;"></canvas>
+              <div id="donut-val-rango" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; font-weight: 900; color: var(--text-primary);">0%</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 800; margin-top: 6px; color: var(--text-primary);">En Rango</div>
+            <div style="font-size: 10px; font-weight: 700; opacity: 0.6;">70 - 180</div>
+          </div>
+
+          <div>
+            <div style="position: relative; width: 85px; height: 85px; margin: 0 auto;">
+              <canvas id="donutAlta" style="width: 85px; height: 85px; display: block;"></canvas>
+              <div id="donut-val-alta" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; font-weight: 900; color: var(--text-primary);">0%</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 800; margin-top: 6px; color: var(--text-primary);">Elevada</div>
+            <div style="font-size: 10px; font-weight: 700; opacity: 0.6;">&gt; 180</div>
+          </div>
+
+          <div>
+            <div style="position: relative; width: 85px; height: 85px; margin: 0 auto;">
+              <canvas id="donutBaja" style="width: 85px; height: 85px; display: block;"></canvas>
+              <div id="donut-val-baja" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; font-weight: 900; color: var(--text-primary);">0%</div>
+            </div>
+            <div style="font-size: 12px; font-weight: 800; margin-top: 6px; color: var(--text-primary);">Baja</div>
+            <div style="font-size: 10px; font-weight: 700; opacity: 0.6;">&lt; 70</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. AUDITORÍA CLÍNICA ORIGINAL (100% PRESERVADA) -->
+      <div class="card card-panel-grafico card-full" style="display: block; margin-bottom: 20px;">
+        <h3 class="panel-header-small">
+          <span class="title-flex">Auditoría Clínica por Días</span>
+        </h3>
+        <div id="barras-mensuales"></div>
+        <div id="panel-comidas-stats" style="margin-top: 18px; padding-top: 16px; border-top: 2px dashed rgba(0,0,0,0.08);"></div>
+      </div>
+
     </div>
 
     <div id="view-buscador" style="display: none;">
@@ -351,6 +372,7 @@
           <div><label>Toujeo / Basal</label><input type="number" id="cfg-toujeo" value="56" inputmode="numeric"></div>
         </div>
 
+        <!-- CASILLAS DE FACTORES DE CORRECCIÓN INDIVIDUALES -->
         <h3 style="color: var(--turquoise-strong); font-size: 15px; margin-top: 10px; margin-bottom: 8px;">Factores de Corrección (1U baja X mg/dL)</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
           <div><label>FC Desayuno</label><input type="number" id="cfg-fc-desayuno" value="30" inputmode="numeric"></div>
