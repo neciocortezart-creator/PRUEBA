@@ -88,7 +88,7 @@ function actualizarRadar() {
       return;
   }
 
-  const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda', 'cena': 'Cena', 'corroborar': 'Revisión', 'post-comida': '2H Post' };
+  const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda', 'cena': 'Cena', 'corroborar': 'RevisiÃ³n', 'post-comida': '2H Post' };
 
   listaRadar.innerHTML = ultimosTres.map(reg => {
       const nombreComida = dict[reg.tipoComida] || 'Manual';
@@ -131,7 +131,7 @@ async function sincronizarDatosNube() {
     .order('created_at', { ascending: true }); 
 
   if (error) {
-    console.error("Fallo en la sincronización:", error.message);
+    console.error("Fallo en la sincronizaciÃ³n:", error.message);
     return;
   }
 
@@ -210,7 +210,7 @@ async function revisarRegistrosAntiguos() {
   if (errorSelect) return;
 
   if (registrosViejos && registrosViejos.length > 0) {
-    if (confirm(`Líder, tienes ${registrosViejos.length} registros con más de 30 días de antigüedad. ¿Deseas descargar el PDF mensual ahora antes de que se borren automáticamente para mantener el sistema optimizado?`)) {
+    if (confirm(`LÃ­der, tienes ${registrosViejos.length} registros con mÃ¡s de 30 dÃ­as de antigÃ¼edad. Â¿Deseas descargar el PDF mensual ahora antes de que se borren automÃ¡ticamente para mantener el sistema optimizado?`)) {
         generarPDFElite();
     }
 
@@ -242,7 +242,7 @@ async function validarAcceso() {
   const pass = document.getElementById('login-pass').value.trim();
 
   if (!user || !pass) {
-    alert("Líder, la excelencia exige que llenes todos los datos.");
+    alert("LÃ­der, la excelencia exige que llenes todos los datos.");
     return;
   }
 
@@ -252,7 +252,7 @@ async function validarAcceso() {
   });
 
   if (error) {
-    alert("Acceso Denegado. Verifica el correo o la contraseña.");
+    alert("Acceso Denegado. Verifica el correo o la contraseÃ±a.");
     document.getElementById('login-pass').value = '';
   } else {
     localStorage.setItem('polar_session_activa', 'true');
@@ -293,7 +293,7 @@ async function cerrarSesion() {
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('lista-historial').innerHTML = '';
-  document.getElementById('btn-usuario-nombre').innerText = 'Líder';
+  document.getElementById('btn-usuario-nombre').innerText = 'LÃ­der';
   
   switchTab('home');
   
@@ -315,7 +315,7 @@ async function guardarNombreUsuario() {
 
 function cargarNombreUsuario() {
   const userId = localStorage.getItem('polar_user_id') || 'default';
-  const nombreGuardado = localStorage.getItem('polar_nombre_lider_' + userId) || 'Líder';
+  const nombreGuardado = localStorage.getItem('polar_nombre_lider_' + userId) || 'LÃ­der';
   document.getElementById('btn-usuario-nombre').innerText = nombreGuardado;
 }
 
@@ -348,7 +348,7 @@ function deshacerBorrado() {
 
 const temasVisuales = {
   elite: { '--bg-polar': '#FAF8F5', '--white': '#FFFFFF', '--blue-ice-light': '#5B9BD5', '--blue-ice-mid': '#F3C623', '--turquoise-soft': '#088387', '--turquoise-strong': '#088387', '--text-primary': '#2C3A40', '--text-inverse': '#FFFFFF', '--text-dark': '#2C3A40', '--btn-text': '#FFFFFF', '--accent-btn': '#F05A4A', '--accent-btn-text': '#FFFFFF', '--card-bg': '#FFFFFF', '--card-text': '#2C3A40', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': 'rgba(44, 58, 64, 0.20)', '--label-color': '#2C3A40', '--calendar-invert': '0', '--bg-card-glucose': '#088387', '--text-card-glucose': '#FFFFFF', '--bg-card-carbs': '#2C3A40', '--text-card-carbs': '#FFFFFF' },
-  original: { '--bg-polar': '#F0F6F7', '--white': '#FFFFFF', '--blue-ice-light': '#D4E4E6', '--blue-ice-mid': '#A2C5C9', '--turquoise-soft': '#7AB0B2', '--turquoise-strong': '#4A8C8E', '--text-primary': '#1A2A30', '--text-inverse': '#FFFFFF', '--text-dark': '#1A2A30', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#1A2A30', '--card-bg': '#2C3A40', '--card-text': '#F0F6F7', '--input-bg': '#FFFFFF', '--input-text': '#1A2A30', '--input-border': 'rgba(0, 0, 0, 0.25)', '--label-color': '#1A2A30', '--calendar-invert': '1', '--bg-card-glucose': '#D4E4E6', '--text-card-glucose': '#1A2A30', '--bg-card-carbs': '#A2C5C9', '--text-card-carbs': '#1A2A30' },
+  original: { '--bg-polar': '#F0F6F7', '--white': '#FFFFFF', '--blue-ice-light': '#D4E4E6', '--blue-ice-mid': '#A2C5C9', '--turquoise-soft': '#7AB0B2', '--turquoise-strong': '#4A8C8E', '--text-primary': '#1A2A30', '--text-inverse': '#FFFFFF', '--text-dark': '#1A2A30', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#1A2A30', '--card-bg': '#2C3A40', '--card-text': '#F0F6F7', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': 'rgba(0, 0, 0, 0.25)', '--label-color': '#1A2A30', '--calendar-invert': '1', '--bg-card-glucose': '#D4E4E6', '--text-card-glucose': '#1A2A30', '--bg-card-carbs': '#A2C5C9', '--text-card-carbs': '#1A2A30' },
   oscuro: { '--bg-polar': '#121212', '--white': '#1E1E1E', '--blue-ice-light': '#2C2C2C', '--blue-ice-mid': '#3A3A3A', '--turquoise-soft': '#66B2B4', '--turquoise-strong': '#4A8C8E', '--text-primary': '#F0F0F0', '--text-inverse': '#121212', '--text-dark': '#F0F0F0', '--btn-text': '#FFFFFF', '--accent-btn': '#bdff6f', '--accent-btn-text': '#121212', '--card-bg': '#1E1E1E', '--card-text': '#F0F0F0', '--input-bg': '#2A2A2A', '--input-text': '#F0F0F0', '--input-border': 'rgba(255, 255, 255, 0.4)', '--label-color': '#F0F0F0', '--calendar-invert': '1', '--bg-card-glucose': '#2C2C2C', '--text-card-glucose': '#F0F0F0', '--bg-card-carbs': '#3A3A3A', '--text-card-carbs': '#F0F0F0' },
   blanco: { '--bg-polar': '#F8F9FA', '--white': '#FFFFFF', '--blue-ice-light': '#E9ECEF', '--blue-ice-mid': '#CED4DA', '--turquoise-soft': '#495057', '--turquoise-strong': '#212529', '--text-primary': '#1A1A1A', '--text-inverse': '#FFFFFF', '--text-dark': '#1A1A1A', '--btn-text': '#FFFFFF', '--accent-btn': '#0D6EFD', '--accent-btn-text': '#FFFFFF', '--card-bg': '#E9ECEF', '--card-text': '#1A1A1A', '--input-bg': '#FFFFFF', '--input-text': '#1A1A1A', '--input-border': '#ADB5BD', '--label-color': '#1A1A1A', '--calendar-invert': '0', '--bg-card-glucose': '#E9ECEF', '--text-card-glucose': '#1A1A1A', '--bg-card-carbs': '#CED4DA', '--text-card-carbs': '#1A1A1A' },
   halloween: { '--bg-polar': '#2A162B', '--white': '#1A0B1A', '--blue-ice-light': '#582A4D', '--blue-ice-mid': '#B5452C', '--turquoise-soft': '#E88C15', '--turquoise-strong': '#E88C15', '--text-primary': '#F5D6B4', '--text-inverse': '#1A0B1A', '--text-dark': '#F5D6B4', '--btn-text': '#1A0B1A', '--accent-btn': '#B5452C', '--accent-btn-text': '#FFFFFF', '--card-bg': '#1A0B1A', '--card-text': '#F5D6B4', '--input-bg': '#2A162B', '--input-text': '#F5D6B4', '--input-border': '#E88C15', '--label-color': '#F5D6B4', '--calendar-invert': '1', '--bg-card-glucose': '#582A4D', '--text-card-glucose': '#F5D6B4', '--bg-card-carbs': '#B5452C', '--text-card-carbs': '#FFFFFF' },
@@ -378,6 +378,158 @@ function aplicarTemaReal(temaNombre) {
 let usoRedondeoElite = true;
 let diasFiltroBarras = 7;
 
+function cambiarFiltroBarras(dias) {
+    diasFiltroBarras = dias;
+    renderBarrasPorcentaje();
+}
+
+function renderBarrasPorcentaje() {
+    const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+    const ahora = new Date().getTime();
+    const tiempoLimite = ahora - (diasFiltroBarras * 24 * 60 * 60 * 1000);
+
+    const parseItemTime = (item) => {
+        if (item.timestamp) return item.timestamp;
+        if(!item.iso) return 0;
+        return new Date(item.iso + 'T00:00:00').getTime();
+    };
+
+    const historialFiltrado = historialCompleto.filter(item => parseItemTime(item) >= tiempoLimite);
+
+    let n70 = 0, n180 = 0, n240 = 0, nMas240 = 0, total = 0;
+    historialFiltrado.forEach(d => {
+        let v = parseFloat(d.glucosa);
+        if(isNaN(v)) return;
+        total++;
+        if (v <= 70) n70++;
+        else if (v <= 180) n180++;
+        else if (v <= 239) n240++;
+        else nMas240++;
+    });
+
+    let p70 = total ? Math.round((n70/total)*100) : 0;
+    let p180 = total ? Math.round((n180/total)*100) : 0;
+    let p240 = total ? Math.round((n240/total)*100) : 0;
+    let pMas240 = total ? Math.round((nMas240/total)*100) : 0;
+
+    const isDarkBg = ['oscuro', 'halloween'].includes(config.tema);
+    const textCol = isDarkBg ? '#FFFFFF' : '#000000';
+
+    const divBarras = document.getElementById('barras-mensuales');
+    if(!divBarras) return;
+
+    const circuloStyle = (dias) => `
+        width: 52px; height: 52px; border-radius: 50%;
+        background: ${diasFiltroBarras === dias ? 'var(--turquoise-strong)' : 'transparent'};
+        color: ${diasFiltroBarras === dias ? 'var(--white)' : 'var(--text-primary)'};
+        border: 2px solid var(--turquoise-strong);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        font-weight: 900; font-size: 14px; cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); line-height: 1.1;
+    `;
+
+    divBarras.innerHTML = `
+        <h4 style="font-size: 15px; color: var(--turquoise-strong); margin-bottom: 8px; font-weight: 900;">mg/dl</h4>
+
+        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
+          <span>240 de azÃºcar en adelante</span><span>${pMas240}%</span>
+        </div>
+        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
+          <div style="height: 100%; background: #FF9F0A; width: ${pMas240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
+          <span>de 181 a 240</span><span>${p240}%</span>
+        </div>
+        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
+          <div style="height: 100%; background: #F3C623; width: ${p240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
+          <span>de 70 a 180</span><span>${p180}%</span>
+        </div>
+        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
+          <div style="height: 100%; background: #4CAF50; width: ${p180}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
+          <span>en 70</span><span>${p70}%</span>
+        </div>
+        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 16px; overflow:hidden;">
+          <div style="height: 100%; background: #FF3B30; width: ${p70}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+            <div style="${circuloStyle(7)}" onclick="cambiarFiltroBarras(7)">7<br><span style="font-size:11px;font-weight:700;">dÃ­as</span></div>
+            <div style="${circuloStyle(10)}" onclick="cambiarFiltroBarras(10)">10<br><span style="font-size:11px;font-weight:700;">dÃ­as</span></div>
+            <div style="${circuloStyle(14)}" onclick="cambiarFiltroBarras(14)">14<br><span style="font-size:11px;font-weight:700;">dÃ­as</span></div>
+            <div style="${circuloStyle(30)}" onclick="cambiarFiltroBarras(30)">30<br><span style="font-size:11px;font-weight:700;">dÃ­as</span></div>
+            <div style="${circuloStyle(90)}" onclick="cambiarFiltroBarras(90)">90<br><span style="font-size:11px;font-weight:700;">dÃ­as</span></div>
+        </div>
+    `;
+
+    renderDesgloseComidas(historialFiltrado, textCol);
+}
+
+function renderDesgloseComidas(historialFiltrado, textCol) {
+    const divComidas = document.getElementById('panel-comidas-stats');
+    if(!divComidas) return;
+
+    let stats = {
+        desayuno: { sum: 0, count: 0 },
+        mam: { sum: 0, count: 0 },
+        almuerzo: { sum: 0, count: 0 },
+        mpm: { sum: 0, count: 0 },
+        cena: { sum: 0, count: 0 }
+    };
+    let totalValidos = 0;
+
+    historialFiltrado.forEach(d => {
+        let val = parseFloat(d.glucosa);
+        if (!isNaN(val) && stats.hasOwnProperty(d.tipoComida)) {
+            stats[d.tipoComida].sum += val;
+            stats[d.tipoComida].count++;
+            totalValidos++;
+        }
+    });
+
+    if (totalValidos === 0) {
+        divComidas.innerHTML = '<p style="font-size: 13px; font-weight: 700; opacity: 0.6; text-align: center;">Sin registros de glucosa en este periodo.</p>';
+        return;
+    }
+
+    const nombres = { desayuno: 'Desayuno', mam: 'Once', almuerzo: 'Almuerzo', mpm: 'Merienda', cena: 'Cena' };
+    const colores = { desayuno: '#FCA311', mam: '#D84B79', almuerzo: '#4CAF50', mpm: '#5B9BD5', cena: '#A35496' };
+
+    let html = `<h4 style="font-size: 15px; color: var(--turquoise-strong); margin-bottom: 12px; font-weight: 900;">Promedio de EnergÃ­a por Comida</h4>`;
+
+    for (let key in stats) {
+        if(stats[key].count > 0) {
+            let promedio = Math.round(stats[key].sum / stats[key].count);
+            let colorBarra = colores[key];
+            let nombre = nombres[key];
+            
+            let colorAlerta = 'var(--text-primary)';
+            if (promedio < 70) colorAlerta = '#FF3B30';
+            else if (promedio > 180) colorAlerta = '#FF9F0A';
+            else colorAlerta = '#4CAF50'; 
+
+            let fillPercent = Math.min((promedio / 250) * 100, 100);
+
+            html += `
+            <div style="display:flex; justify-content:space-between; align-items: flex-end; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
+                <span>${nombre} <span style="opacity: 0.5; font-size: 11px;">(${stats[key].count} reg.)</span></span>
+                <span style="font-size: 15px; color: ${colorAlerta};">${promedio} <span style="font-size: 10px; color: ${textCol}; opacity: 0.7;">mg/dL</span></span>
+            </div>
+            <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 8px; margin-bottom: 12px; overflow:hidden;">
+                <div style="height: 100%; background: ${colorBarra}; width: ${fillPercent}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
+            </div>`;
+        }
+    }
+
+    divComidas.innerHTML = html;
+}
+
 function buscarDiaEspecifico() {
     const fechaSeleccionada = document.getElementById('buscador-fecha').value;
     const contenedorResultados = document.getElementById('resultado-buscador');
@@ -398,13 +550,13 @@ function buscarDiaEspecifico() {
         return;
     }
 
-    const dictNombres = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda', 'cena': 'Cena', 'corroborar': 'Revisión', 'post-comida': '2H Post' };
+    const dictNombres = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda', 'cena': 'Cena', 'corroborar': 'RevisiÃ³n', 'post-comida': '2H Post' };
     const dictColores = { 'desayuno': '#FCA311', 'mam': '#D84B79', 'almuerzo': '#4CAF50', 'mpm': '#5B9BD5', 'cena': '#A35496', 'corroborar': '#2C3A40', 'post-comida': '#088387' };
 
     const partesFecha = fechaSeleccionada.split('-');
     const fechaLimpia = `${partesFecha}/${partesFecha}/${partesFecha[0]}`;
 
-    let html = `<h4 style="font-size: 15px; font-weight: 900; color: var(--text-primary); margin-bottom: 12px; text-align: center; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">Auditoría del ${fechaLimpia}</h4>`;
+    let html = `<h4 style="font-size: 15px; font-weight: 900; color: var(--text-primary); margin-bottom: 12px; text-align: center; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 8px;">AuditorÃ­a del ${fechaLimpia}</h4>`;
 
     registrosDelDia.sort((a, b) => a.timestamp - b.timestamp);
 
@@ -475,9 +627,11 @@ function redondeoElite(valor) {
 }
 
 let deferredPrompt; 
+let calFechaActual = new Date();
 let estadoEjercicio = 0; 
 let calcHistoria = []; 
 let calcPosicion = -1;
+let tooltipListenerAdded = false;
 
 let config = {
   peso: 50, 
@@ -510,16 +664,16 @@ const svgUnicornio = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmln
 const svgDragon = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><polygon points="30,45 50,20 70,45" fill="#F05A4A"/><polygon points="10,60 25,35 40,60" fill="#F05A4A"/><polygon points="90,60 75,35 60,60" fill="#F05A4A"/><path d="M 10 95 A 40 40 0 0 1 90 95 Z" fill="#27AE60"/><circle cx="35" cy="70" r="5" fill="#F1C40F"/><circle cx="65" cy="70" r="5" fill="#F1C40F"/><circle cx="35" cy="70" r="2" fill="#2C3A40"/><circle cx="65" cy="70" r="2" fill="#2C3A40"/><rect x="42" y="85" width="4" height="4" fill="#2C3A40"/><rect x="54" y="85" width="4" height="4" fill="#2C3A40"/></svg>`;
 
 const avatares = [
-  { icon: svgOso, name: 'Oso Polar (Líder)', req: 0, desc: 'Líder desde el día 1.' },
-  { icon: svgZorro, name: 'Zorro Ártico', req: 3, desc: 'Requiere 3 días estables.' },
-  { icon: svgPinguino, name: 'Pingüino Emperador', req: 7, desc: 'Requiere 1 semana estable.' },
-  { icon: svgFoca, name: 'Foca Valiente', req: 10, desc: 'Requiere 10 días de excelencia.' },
-  { icon: svgBuho, name: 'Búho Nival', req: 14, desc: 'Requiere 2 semanas estables.' },
-  { icon: svgLobo, name: 'Lobo Alfa', req: 18, desc: 'Requiere 18 días de liderazgo.' },
+  { icon: svgOso, name: 'Oso Polar (LÃ­der)', req: 0, desc: 'LÃ­der desde el dÃ­a 1.' },
+  { icon: svgZorro, name: 'Zorro Ãrtico', req: 3, desc: 'Requiere 3 dÃ­as estables.' },
+  { icon: svgPinguino, name: 'PingÃ¼ino Emperador', req: 7, desc: 'Requiere 1 semana estable.' },
+  { icon: svgFoca, name: 'Foca Valiente', req: 10, desc: 'Requiere 10 dÃ­as de excelencia.' },
+  { icon: svgBuho, name: 'BÃºho Nival', req: 14, desc: 'Requiere 2 semanas estables.' },
+  { icon: svgLobo, name: 'Lobo Alfa', req: 18, desc: 'Requiere 18 dÃ­as de liderazgo.' },
   { icon: svgTigre, name: 'Tigre Blanco', req: 21, desc: 'Requiere 3 semanas estables.' },
-  { icon: svgPanda, name: 'Panda Zen', req: 25, desc: 'Requiere 25 días estables.' },
-  { icon: svgUnicornio, name: 'Unicornio Místico', req: 28, desc: 'Requiere 4 semanas estables.' },
-  { icon: svgDragon, name: 'Dragón Legendario', req: 35, desc: 'Requiere 35 días absolutos.' }
+  { icon: svgPanda, name: 'Panda Zen', req: 25, desc: 'Requiere 25 dÃ­as estables.' },
+  { icon: svgUnicornio, name: 'Unicornio MÃ­stico', req: 28, desc: 'Requiere 4 semanas estables.' },
+  { icon: svgDragon, name: 'DragÃ³n Legendario', req: 35, desc: 'Requiere 35 dÃ­as absolutos.' }
 ];
 
 const avataresBgColors = ['#197B79', '#E55938', '#73A5D4', '#7BA68D', '#2B3C46', '#1A7A78', '#EFBA34', '#799E7A', '#FA65ED', '#213B41'];
@@ -559,7 +713,7 @@ function renderAvatarPanel() {
     const statusClass = desbloqueado ? '' : 'locked';
     const activeClass = isActive ? 'active' : '';
     const bg = avataresBgColors[index] || '#2C3A40';
-    const diasTexto = index === 0 ? 'Nivel Base' : `${av.req} Días`;
+    const diasTexto = index === 0 ? 'Nivel Base' : `${av.req} DÃ­as`;
     const nombreCorto = av.name.replace(' Emperador', '').replace(' Legendario', ' Leyenda');
 
     gridHTML += `
@@ -580,7 +734,7 @@ function seleccionarAvatarDirecto(index) {
   localStorage.setItem('polar_config', JSON.stringify(config)); 
   cargarAvatar(); 
   renderAvatarPanel(); 
-  alert("¡Poder equipado con excelencia!"); 
+  alert("Â¡Poder equipado con excelencia!"); 
 }
 
 function cargarAvatar() { 
@@ -790,7 +944,7 @@ function agregarAlCalendario(especialista, fecha, hora) {
   let horaFin = String(parseInt(hora.split(':')[0]) + 1).padStart(2, '0');
   if (horaFin === '24') horaFin = '00';
   const end = fecha.replace(/-/g, '') + 'T' + horaFin + hora.split(':') + '00';
-  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Cita+Médica:+${encodeURIComponent(especialista)}&dates=${start}/${end}&details=Cita+agendada+desde+Polar`;
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Cita+MÃ©dica:+${encodeURIComponent(especialista)}&dates=${start}/${end}&details=Cita+agendada+desde+Polar`;
   window.open(url, '_blank');
 }
 
@@ -832,8 +986,8 @@ function verificarCitasProximas() {
 
         if ("Notification" in window && Notification.permission === "granted") {
           navigator.serviceWorker.ready.then(registration => {
-            registration.showNotification("¡Atención líder, cita hoy!", {
-              body: `Hoy tienes cita con ${cita.specialist || cita.especialista} a las ${cita.hora}. ¡Prepárate con excelencia!`,
+            registration.showNotification("Â¡AtenciÃ³n lÃ­der, cita hoy!", {
+              body: `Hoy tienes cita con ${cita.specialist || cita.especialista} a las ${cita.hora}. Â¡PrepÃ¡rate con excelencia!`,
               icon: "polar-logo.png",
               vibrate: [200, 100, 200, 100, 200]
             });
@@ -866,14 +1020,14 @@ function generarPDFElite() {
     divPDF.style.fontFamily = 'Nunito, sans-serif';
     divPDF.style.color = '#2C3A40';
     
-    let html = `<h1 style="color: #088387; text-align: center; font-size: 26px; margin-bottom: 5px; font-weight: 900; text-transform: uppercase;">Reporte Clínico Polar</h1>`;
+    let html = `<h1 style="color: #088387; text-align: center; font-size: 26px; margin-bottom: 5px; font-weight: 900; text-transform: uppercase;">Reporte ClÃ­nico Polar</h1>`;
     html += `<p style="text-align: center; font-size: 13px; margin-bottom: 25px; color: #555;">Generado el: ${new Date().toLocaleDateString()}</p>`;
     
     html += `<div style="background: #F0F6F7; padding: 16px; border-radius: 12px; margin-bottom: 25px; border-left: 6px solid #088387;">
-      <h3 style="color: #088387; margin-bottom: 12px; font-size: 18px; margin-top:0; font-weight: 900;">Esquema Médico Actual</h3>
+      <h3 style="color: #088387; margin-bottom: 12px; font-size: 18px; margin-top:0; font-weight: 900;">Esquema MÃ©dico Actual</h3>
       <ul style="font-size: 14px; line-height: 1.6; list-style: none; padding: 0; margin: 0; font-weight: 700;">
         <li><strong>Basal (Toujeo):</strong> ${config.toujeo} U</li>
-        <li><strong>Factores de Corrección:</strong> Des: ${config.fc.desayuno} | Once: ${config.fc.mam} | Alm: ${config.fc.almuerzo} | PM: ${config.fc.mpm} | Cena: ${config.fc.cena} | Rev: ${config.fc.corroborar}</li>
+        <li><strong>Factores de CorrecciÃ³n:</strong> Des: ${config.fc.desayuno} | Once: ${config.fc.mam} | Alm: ${config.fc.almuerzo} | PM: ${config.fc.mpm} | Cena: ${config.fc.cena} | Rev: ${config.fc.corroborar}</li>
         <li><strong>Ratios:</strong> Desayuno R${config.ratios.desayuno} | Once R${config.ratios.mam} | Almuerzo R${config.ratios.almuerzo} | PM R${config.ratios.mpm} | Cena R${config.ratios.cena}</li>
       </ul>
     </div>`;
@@ -881,7 +1035,7 @@ function generarPDFElite() {
     html += `<h3 style="color: #088387; border-bottom: 2px solid #088387; padding-bottom: 6px; margin-bottom: 15px; font-size: 18px; font-weight: 900;">Registro Diario de Mediciones</h3>`;
     
     if (historial.length === 0) {
-      html += "<p style='font-size: 14px; text-align:center; font-weight: 700;'>Sin registros en la bóveda.</p>";
+      html += "<p style='font-size: 14px; text-align:center; font-weight: 700;'>Sin registros en la bÃ³veda.</p>";
     } else {
       html += `<table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
         <thead>
@@ -896,7 +1050,7 @@ function generarPDFElite() {
         <tbody>`;
         
       const historialReverso = historial.slice().reverse();
-      const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda PM', 'cena': 'Cena', 'corroborar': 'Revisión', 'post-comida': '2H Post' };
+      const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda PM', 'cena': 'Cena', 'corroborar': 'RevisiÃ³n', 'post-comida': '2H Post' };
 
       historialReverso.forEach((item, index) => {
         const bgRow = index % 2 === 0 ? '#FFFFFF' : '#F9F9F9';
@@ -964,7 +1118,7 @@ async function guardarConfig() {
   document.getElementById('btn-llamar-papa').href = "tel:" + config.telPapa;
 
   switchTab('home'); 
-  alert("Metas, factores de corrección y control guardados con éxito.");
+  alert("Metas, factores de correcciÃ³n y control guardados con Ã©xito.");
 }
 
 function actualizarDropdownMetas() {
@@ -975,7 +1129,7 @@ function actualizarDropdownMetas() {
   
   select.innerHTML = `
     <option value="${antes}">Antes de comer (${antes})</option>
-    <option value="${cor}">Corrección (${cor})</option>
+    <option value="${cor}">CorrecciÃ³n (${cor})</option>
   `;
 }
 
@@ -1031,11 +1185,11 @@ function actualizarTextosComida() {
   const ratioCena = document.getElementById('cfg-r-cena') ? document.getElementById('cfg-r-cena').value : config.ratios.cena;
 
   s.options[0].text = `DESAYUNO (R${ratioDes})`; 
-  s.options.text = `ONCE (R${ratioMam})`; 
-  s.options.text = `ALMUERZO (R${ratioAlm})`; 
-  s.options.text = `MERIENDA TARDE (R${ratioMpm})`; 
-  s.options.text = `CENA (R${ratioCena})`; 
-  if(s.options) s.options.text = `CORROBORAR (SOLO CORRECCIÓN)`;
+  s.options[1].text = `ONCE (R${ratioMam})`; 
+  s.options[2].text = `ALMUERZO (R${ratioAlm})`; 
+  s.options[3].text = `MERIENDA TARDE (R${ratioMpm})`; 
+  s.options[4].text = `CENA (R${ratioCena})`; 
+  if(s.options[5]) s.options[5].text = `CORROBORAR (SOLO CORRECCIÃ“N)`;
   
   const meal = s.value;
   const inputActivo = document.getElementById('cfg-r-' + meal);
@@ -1079,7 +1233,7 @@ function guardarDosisAplicada(e, dosis, glucosa, carbos, tipoComida) {
 
   const userId = localStorage.getItem('polar_user_id');
   if (!userId) {
-      alert("Error de seguridad: La sesión no es válida. Vuelve a iniciar sesión.");
+      alert("Error de seguridad: La sesiÃ³n no es vÃ¡lida. Vuelve a iniciar sesiÃ³n.");
       return;
   }
 
@@ -1117,10 +1271,10 @@ function actualizarVistaHistorial() {
   const lista = document.getElementById('lista-historial'); 
   const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
   if (historial.length === 0) { 
-    lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">Aún no hay registros.</p>'; 
+    lista.innerHTML = '<p style="text-align: center; color: var(--text-primary); font-weight: 700; font-size: 14px;">AÃºn no hay registros.</p>'; 
     return; 
   }
-  const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda tarde', 'cena': 'Cena', 'corroborar': 'Corroboración', 'post-comida': '2 Horas Post-Comida' };
+  const dict = { 'desayuno': 'Desayuno', 'mam': 'Once', 'almuerzo': 'Almuerzo', 'mpm': 'Merienda tarde', 'cena': 'Cena', 'corroborar': 'CorroboraciÃ³n', 'post-comida': '2 Horas Post-Comida' };
   let html = ''; 
   let fechaAgrupada = ''; 
   const hOrd = historial.slice(); 
@@ -1129,13 +1283,13 @@ function actualizarVistaHistorial() {
     const nom = item.tipoComida ? dict[item.tipoComida] : 'Manual'; 
     const partes = item.fecha.split(', '); 
     const dS = partes[0]; 
-    const hS = partes || item.fecha;
+    const hS = partes[1] || item.fecha;
     if (dS !== fechaAgrupada) { 
       fechaAgrupada = dS; 
       html += `<div class="historial-fecha-bloque">${dS}</div>`; 
     }
-    let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `Azúcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
-    let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">Revisión</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
+    let det = item.tipoComida === 'post-comida' ? `Medido: <span style="color: var(--turquoise-strong); font-weight:900;">${item.glucosa}</span>` : `AzÃºcar: ${item.glucosa || 0} | CHO: ${item.carbos || 0}g`;
+    let dos = (item.tipoComida === 'post-comida') ? (item.dosis > 0 ? `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 20px;">${item.dosis} U</div>` : `<div style="color: var(--turquoise-strong); font-weight: 900; font-size: 16px;">RevisiÃ³n</div>`) : `<div style="color: var(--text-dark); font-weight: 900; font-size: 20px;">${item.dosis} U</div>`;
 
     html += `<div class="historial-registro">
       <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
@@ -1147,13 +1301,13 @@ function actualizarVistaHistorial() {
       </div>
     </div>`;
   });
-  lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clínico protegido.</p>`;
+  lista.innerHTML = html + `<p style="font-size: 13px; text-align:center; color: var(--text-primary); font-weight: 800; margin-top: 18px;">Historial clÃ­nico protegido.</p>`;
 }
 
 async function borrarHistorialCompleto() { 
-  if(!confirm("⚠️ Alto líder. ¿Seguro que quieres borrar TODO el historial? Esta acción requiere confirmación de seguridad.")) return;
-  const pin = prompt("🔒 Introduce el código PIN familiar para autorizar el borrado total:");
-  if (pin !== "1234") { alert("❌ Código incorrecto. El historial está protegido."); return; }
+  if(!confirm("âš ï¸ Alto lÃ­der. Â¿Seguro que quieres borrar TODO el historial? Esta acciÃ³n requiere confirmaciÃ³n de seguridad.")) return;
+  const pin = prompt("ðŸ”’ Introduce el cÃ³digo PIN familiar para autorizar el borrado total:");
+  if (pin !== "1234") { alert("âŒ CÃ³digo incorrecto. El historial estÃ¡ protegido."); return; }
 
   const hV = JSON.parse(localStorage.getItem('historial_polar') || '[]');
   const userId = localStorage.getItem('polar_user_id');
@@ -1166,7 +1320,7 @@ async function borrarHistorialCompleto() {
 
     if (error) {
       console.error("Error al borrar en la nube:", error);
-      alert("Fallo en la conexión. No se pudo borrar de la nube.");
+      alert("Fallo en la conexiÃ³n. No se pudo borrar de la nube.");
       return;
     }
   }
@@ -1176,226 +1330,292 @@ async function borrarHistorialCompleto() {
   renderGraficoPicos();
   actualizarRadar();
   activarDeshacer('historial', hV);
-  alert("✅ Historial borrado.");
+  alert("âœ… Historial borrado.");
 }
 
 function sugerirEsquema() {
   const h = JSON.parse(localStorage.getItem('historial_polar') || '[]'); 
-  if (h.length === 0) { alert("Registra datos primero, líder."); return; }
+  if (h.length === 0) { alert("Registra datos primero, lÃ­der."); return; }
   const ah = new Date(); 
   const h2d = new Date(); 
   h2d.setDate(ah.getDate() - 2); 
   const ult = h.filter(i => { if (!i.iso) return false; return new Date(i.iso) >= h2d; });
-  if (ult.length === 0) { alert("No hay mediciones en los últimos 2 días."); return; }
+  if (ult.length === 0) { alert("No hay mediciones en los Ãºltimos 2 dÃ­as."); return; }
   let s = 0; let c = 0; 
   ult.forEach(r => { if (r.glucosa && r.glucosa > 0) { s += Number(r.glucosa); c++; } }); 
   if (c === 0) return;
   const p = s / c; 
   let m = "";
-  if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).\n\nSugerencia: Liderazgo aquí. Aumenta Toujeo en 1 o 2 U o ajusta ratios y factores de corrección. Revisa con médico.`;
-  else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).\n\nSugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
-  else m = `Promedio EXCELENTE (${p.toFixed(0)}).\n\nSugerencia: Estás dominando al 100%. Mantén el esquema.`;
+  if (p > 180) m = `Promedio ALTO (${p.toFixed(0)}).
+
+Sugerencia: Liderazgo aquÃ­. Aumenta Toujeo en 1 o 2 U o ajusta ratios y factores de correcciÃ³n. Revisa con mÃ©dico.`;
+  else if (p < 80) m = `Promedio BAJO (${p.toFixed(0)}).
+
+Sugerencia: Bajar Toujeo 1 o 2 U. Protege a la familia primero.`;
+  else m = `Promedio EXCELENTE (${p.toFixed(0)}).
+
+Sugerencia: EstÃ¡s dominando al 100%. MantÃ©n el esquema.`;
   alert(m);
 }
 
-// INSTANCIAS GLOBALES PARA GESTIÓN DE MEMORIA EN CHART.JS
-let chartTendenciaInstancia = null;
-let chartBarrasInstancia = null;
-let chartDonutRangoInstancia = null;
-let chartDonutAltaInstancia = null;
-let chartDonutBajaInstancia = null;
-
 // =========================================================================
-// RENDERIZADO COMPLETO DEL PANEL ANALÍTICO ÉLITE (3 GRÁFICAS)
+// RENDERIZADO NATIVO DEL PANEL ANALÃTICO Ã‰LITE (CANVAS PURO, 100% OFFLINE)
 // =========================================================================
 function renderGraficoPicos() {
-  if (typeof Chart === 'undefined') {
-    console.warn("Chart.js aún no está disponible.");
-    return;
-  }
+  const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+  const dpr = window.devicePixelRatio || 1;
 
-  const canvasTendencia = document.getElementById('chartTendenciaHoras');
-  if (!canvasTendencia) return;
-
-  // 1. Extraer colores directos de las variables CSS activas del tema
+  // Extraer colores CSS del tema activo
   const styles = getComputedStyle(document.documentElement);
   const colorTurquesa = styles.getPropertyValue('--turquoise-strong').trim() || '#088387';
   const colorAzul = styles.getPropertyValue('--blue-ice-light').trim() || '#5B9BD5';
   const colorAmarillo = styles.getPropertyValue('--blue-ice-mid').trim() || '#F3C623';
-  const colorRojo = styles.getPropertyValue('--accent-btn').trim() || '#F05A4A';
+  const colorRojo = styles.getPropertyValue('--accent-btn').trim() || '#FF3B30';
   const colorTexto = styles.getPropertyValue('--text-primary').trim() || '#2C3A40';
 
-  // 2. Extraer datos del almacenamiento local de Polar
-  const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
+  // -------------------------------------------------------------------------
+  // 1. CURVA DE TENDENCIA (Ãrea sombreada + Puntos)
+  // -------------------------------------------------------------------------
+  const canvasCurva = document.getElementById('graficoPicos');
+  if (canvasCurva && canvasCurva.parentElement) {
+    const w = canvasCurva.parentElement.clientWidth || 340;
+    const h = 240;
+    canvasCurva.width = w * dpr;
+    canvasCurva.height = h * dpr;
+    canvasCurva.style.width = w + 'px';
+    canvasCurva.style.height = h + 'px';
 
-  // =========================================================================
-  // GRÁFICA 1: TENDENCIA HORARIA (Área / Línea con Puntos Marcados)
-  // Regla estricta: Visible y precisa desde el 1er dato
-  // =========================================================================
-  const ctxTendencia = canvasTendencia.getContext('2d');
-  if (chartTendenciaInstancia) chartTendenciaInstancia.destroy();
+    const ctx = canvasCurva.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
 
-  const datosValidos = historial.filter(r => r.glucosa !== undefined && r.glucosa !== null && r.glucosa !== '');
-  const ultimosRegistros = datosValidos.slice(-12);
+    const padX = 42;
+    const padY = 24;
+    const gW = w - padX * 2;
+    const gH = h - padY * 2;
 
-  let labelsTendencia = [];
-  let valoresGlucosa = [];
-  let pointColors = [];
-
-  if (ultimosRegistros.length === 0) {
-    labelsTendencia = ['Sin registros'];
-    valoresGlucosa = [100];
-    pointColors = [colorTurquesa];
-  } else {
-    ultimosRegistros.forEach(item => {
-      let hora = item.fecha ? (item.fecha.split(', ') || item.fecha.split(' ') || item.fecha) : '--:--';
-      if (hora.length >= 5) hora = hora.substring(0, 5);
-      labelsTendencia.push(hora);
-
-      const val = parseFloat(item.glucosa) || 0;
-      valoresGlucosa.push(val);
-
-      if (val < 70) pointColors.push(colorRojo);
-      else if (val > 180) pointColors.push(colorAmarillo);
-      else pointColors.push(colorTurquesa);
-    });
-  }
-
-  const gradientArea = ctxTendencia.createLinearGradient(0, 0, 0, 200);
-  gradientArea.addColorStop(0, 'rgba(8, 131, 135, 0.28)');
-  gradientArea.addColorStop(1, 'rgba(8, 131, 135, 0.00)');
-
-  chartTendenciaInstancia = new Chart(ctxTendencia, {
-    type: 'line',
-    data: {
-      labels: labelsTendencia,
-      datasets: [{
-        label: 'Glucosa (mg/dL)',
-        data: valoresGlucosa,
-        borderColor: colorTurquesa,
-        borderWidth: 2.8,
-        backgroundColor: gradientArea,
-        fill: true,
-        tension: 0.35,
-        pointRadius: ultimosRegistros.length === 1 ? 8 : 5,
-        pointHoverRadius: 7,
-        pointBackgroundColor: pointColors,
-        pointBorderColor: '#FFFFFF',
-        pointBorderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: colorTexto,
-          titleFont: { family: 'Nunito', weight: 'bold' },
-          bodyFont: { family: 'Nunito', weight: 'bold' },
-          callbacks: {
-            label: (ctx) => ` Nivel: ${ctx.parsed.y} mg/dL`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: colorTexto, font: { family: 'Nunito', size: 10, weight: '700' } }
-        },
-        y: {
-          suggestedMin: 50,
-          suggestedMax: 250,
-          grid: { color: 'rgba(44, 58, 64, 0.08)' },
-          ticks: { color: colorTexto, font: { family: 'Nunito', size: 10, weight: '700' } }
-        }
-      }
+    // CuadrÃ­cula y escala
+    ctx.strokeStyle = 'rgba(44, 58, 64, 0.12)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padY + (i * (gH / 4));
+      ctx.beginPath();
+      ctx.moveTo(padX, y);
+      ctx.lineTo(w - padX, y);
+      ctx.stroke();
     }
-  });
 
-  // =========================================================================
-  // GRÁFICA 2: HISTÓRICO VERTICAL (Insulina vs Carbohidratos)
-  // =========================================================================
-  const canvasBarras = document.getElementById('chartBarrasRatios');
-  if (canvasBarras) {
-    const ctxBarras = canvasBarras.getContext('2d');
-    if (chartBarrasInstancia) chartBarrasInstancia.destroy();
+    ctx.fillStyle = colorTexto;
+    ctx.font = 'bold 11px Nunito';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('400', padX - 8, padY);
+    ctx.fillText('200', padX - 8, padY + (gH / 2));
+    ctx.fillText('0', padX - 8, padY + gH);
 
-    const ultimosSiete = historial.slice(-7);
-    const labelsBarras = ultimosSiete.map((item, idx) => {
-      if (item.tipoComida) {
-        const dict = { desayuno: 'Des', mam: 'Once', almuerzo: 'Alm', mpm: 'Mer', cena: 'Cen', corroborar: 'Rev' };
-        return dict[item.tipoComida] || `C${idx + 1}`;
+    // Filtrar registros vÃ¡lidos
+    const registrosValidos = historialCompleto.filter(r => r.glucosa !== undefined && r.glucosa !== null && r.glucosa !== '');
+    const puntos = registrosValidos.slice(-12);
+
+    if (puntos.length === 0) {
+      ctx.fillStyle = colorTexto;
+      ctx.font = '800 14px Nunito';
+      ctx.textAlign = 'center';
+      ctx.fillText('Registra tu primera comida para ver la curva.', w / 2, h / 2);
+    } else {
+      const coords = puntos.map((item, idx) => {
+        let val = parseFloat(item.glucosa) || 100;
+        if (val > 400) val = 400;
+        if (val < 0) val = 0;
+
+        let posX;
+        if (puntos.length === 1) {
+          posX = padX + (gW / 2); // Centrado nÃ­tido si hay 1 solo dato
+        } else {
+          posX = padX + (idx / (puntos.length - 1)) * gW;
+        }
+
+        const posY = (padY + gH) - (val / 400) * gH;
+        const hora = item.fecha ? (item.fecha.split(', ')[1] || item.fecha) : '--:--';
+        return { x: posX, y: posY, val: parseFloat(item.glucosa), time: hora };
+      });
+
+      window.graficoCoordsGlobal = coords;
+
+      // Dibujar Ã¡rea sombreada si hay mÃ¡s de 1 punto
+      if (coords.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(coords[0].x, padY + gH);
+        coords.forEach(c => ctx.lineTo(c.x, c.y));
+        ctx.lineTo(coords[coords.length - 1].x, padY + gH);
+        ctx.closePath();
+
+        const grad = ctx.createLinearGradient(0, padY, 0, padY + gH);
+        grad.addColorStop(0, 'rgba(8, 131, 135, 0.28)');
+        grad.addColorStop(1, 'rgba(8, 131, 135, 0.02)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // LÃ­nea trazada
+        ctx.beginPath();
+        coords.forEach((c, idx) => {
+          if (idx === 0) ctx.moveTo(c.x, c.y);
+          else ctx.lineTo(c.x, c.y);
+        });
+        ctx.strokeStyle = colorTurquesa;
+        ctx.lineWidth = 3;
+        ctx.stroke();
       }
-      return `M${idx + 1}`;
-    });
 
-    const carbosData = ultimosSiete.map(item => parseFloat(item.carbos) || 0);
-    const dosisData = ultimosSiete.map(item => parseFloat(item.dosis) || 0);
+      // Dibujar los puntos exactos
+      coords.forEach(c => {
+        let nodoColor = colorTurquesa;
+        if (c.val < 70) nodoColor = colorRojo;
+        else if (c.val > 180) nodoColor = colorAmarillo;
 
-    chartBarrasInstancia = new Chart(ctxBarras, {
-      type: 'bar',
-      data: {
-        labels: labelsBarras.length ? labelsBarras : ['Sin datos'],
-        datasets: [
-          {
-            label: 'Carbos (g)',
-            data: carbosData.length ? carbosData : [0],
-            backgroundColor: colorAzul,
-            borderRadius: 6,
-            yAxisID: 'y'
-          },
-          {
-            label: 'Dosis (U)',
-            data: dosisData.length ? dosisData : [0],
-            backgroundColor: colorTurquesa,
-            borderRadius: 6,
-            yAxisID: 'y1'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { boxWidth: 12, color: colorTexto, font: { family: 'Nunito', weight: '800', size: 11 } }
-          }
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: colorTexto, font: { family: 'Nunito', weight: '700', size: 10 } }
-          },
-          y: {
-            type: 'linear',
-            position: 'left',
-            grid: { color: 'rgba(44, 58, 64, 0.08)' },
-            ticks: { color: colorAzul, font: { family: 'Nunito', weight: '800', size: 10 } },
-            title: { display: true, text: 'Gramos (CHO)', color: colorAzul, font: { size: 9, weight: '800' } }
-          },
-          y1: {
-            type: 'linear',
-            position: 'right',
-            grid: { display: false },
-            ticks: { color: colorTurquesa, font: { family: 'Nunito', weight: '800', size: 10 } },
-            title: { display: true, text: 'Unidades (U)', color: colorTurquesa, font: { size: 9, weight: '800' } }
+        ctx.fillStyle = nodoColor;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, coords.length === 1 ? 9 : 6.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      });
+    }
+
+    // Listener de toques para el tooltip
+    if (!window.tooltipListenerConfigurado) {
+      const mostrarTooltip = (e) => {
+        if (e.type === 'touchstart') e.preventDefault();
+        const rect = canvasCurva.getBoundingClientRect();
+        let cx = e.clientX;
+        let cy = e.clientY;
+        if (e.touches && e.touches.length > 0) {
+          cx = e.touches[0].clientX;
+          cy = e.touches[0].clientY;
+        }
+        const x = cx - rect.left;
+        const y = cy - rect.top;
+
+        let cercano = null;
+        let distMin = 22;
+        if (window.graficoCoordsGlobal) {
+          window.graficoCoordsGlobal.forEach(c => {
+            const d = Math.hypot(c.x - x, c.y - y);
+            if (d <= distMin) {
+              distMin = d;
+              cercano = c;
+            }
+          });
+        }
+
+        const tooltip = document.getElementById('grafico-tooltip');
+        if (tooltip) {
+          if (cercano) {
+            tooltip.innerHTML = `Nivel: ${cercano.val} mg/dL<br><span style="font-size:11px;opacity:0.8;">Hora: ${cercano.time}</span>`;
+            tooltip.style.left = cercano.x + 'px';
+            tooltip.style.top = cercano.y + 'px';
+            tooltip.style.display = 'block';
+            clearTimeout(window.tooltipHideTimer);
+            window.tooltipHideTimer = setTimeout(() => { tooltip.style.display = 'none'; }, 3000);
+          } else {
+            tooltip.style.display = 'none';
           }
         }
-      }
-    });
+      };
+
+      canvasCurva.addEventListener('touchstart', mostrarTooltip, { passive: false });
+      canvasCurva.addEventListener('mousedown', mostrarTooltip);
+      window.tooltipListenerConfigurado = true;
+    }
   }
 
-  // =========================================================================
-  // GRÁFICA 3: TRÍO DE DONUTS DE DISTRIBUCIÓN PORCENTUAL
-  // =========================================================================
+  // -------------------------------------------------------------------------
+  // 2. HISTÃ“RICO VERTICAL (Carbos vs Dosis)
+  // -------------------------------------------------------------------------
+  const canvasBarras = document.getElementById('graficoBarrasRatios');
+  if (canvasBarras && canvasBarras.parentElement) {
+    const w = canvasBarras.parentElement.clientWidth || 340;
+    const h = 200;
+    canvasBarras.width = w * dpr;
+    canvasBarras.height = h * dpr;
+    canvasBarras.style.width = w + 'px';
+    canvasBarras.style.height = h + 'px';
+
+    const ctx = canvasBarras.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, h);
+
+    const ultimas = historialCompleto.slice(-6);
+    if (ultimas.length === 0) {
+      ctx.fillStyle = colorTexto;
+      ctx.font = '800 13px Nunito';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sin datos recientes de comidas.', w / 2, h / 2);
+    } else {
+      const padX = 20;
+      const padBottom = 28;
+      const padTop = 22;
+      const anchoZona = (w - padX * 2) / ultimas.length;
+      const anchoBarra = Math.min(16, (anchoZona / 2) - 4);
+      const altoMaxGraf = h - padBottom - padTop;
+
+      const dictNombres = { desayuno: 'Des', mam: 'Once', almuerzo: 'Alm', mpm: 'Mer', cena: 'Cen', corroborar: 'Rev' };
+
+      ultimas.forEach((item, idx) => {
+        const centroX = padX + (idx * anchoZona) + (anchoZona / 2);
+        const carbos = parseFloat(item.carbos) || 0;
+        const dosis = parseFloat(item.dosis) || 0;
+
+        // Escalas proporcionadas (Carbos hasta 80g, Dosis hasta 15U)
+        const altoCarbos = Math.min(altoMaxGraf, (carbos / 80) * altoMaxGraf);
+        const altoDosis = Math.min(altoMaxGraf, (dosis / 15) * altoMaxGraf);
+
+        const yBase = h - padBottom;
+
+        // Barra Carbos (Azul)
+        ctx.fillStyle = colorAzul;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(centroX - anchoBarra - 2, yBase - altoCarbos, anchoBarra, altoCarbos, [4, 4, 0, 0]);
+        } else {
+          ctx.rect(centroX - anchoBarra - 2, yBase - altoCarbos, anchoBarra, altoCarbos);
+        }
+        ctx.fill();
+
+        // Barra Dosis (Turquesa)
+        ctx.fillStyle = colorTurquesa;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(centroX + 2, yBase - altoDosis, anchoBarra, altoDosis, [4, 4, 0, 0]);
+        } else {
+          ctx.rect(centroX + 2, yBase - altoDosis, anchoBarra, altoDosis);
+        }
+        ctx.fill();
+
+        // Valores numÃ©ricos sobre las barras
+        ctx.fillStyle = colorTexto;
+        ctx.font = '800 10px Nunito';
+        ctx.textAlign = 'center';
+        if (carbos > 0) ctx.fillText(`${carbos}g`, centroX - (anchoBarra / 2) - 2, Math.max(12, yBase - altoCarbos - 4));
+        if (dosis > 0) ctx.fillText(`${dosis}U`, centroX + (anchoBarra / 2) + 2, Math.max(12, yBase - altoDosis - 4));
+
+        // Etiqueta comida abajo
+        const nom = dictNombres[item.tipoComida] || `C${idx + 1}`;
+        ctx.fillText(nom, centroX, h - 10);
+      });
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. TRÃO DE DONUTS NATIVOS (Porcentajes exactos de distribuciÃ³n)
+  // -------------------------------------------------------------------------
   let totalValidos = 0;
   let enRango = 0;
   let alta = 0;
   let baja = 0;
 
-  historial.forEach(r => {
+  historialCompleto.forEach(r => {
     const val = parseFloat(r.glucosa);
     if (!isNaN(val) && val > 0) {
       totalValidos++;
@@ -1409,46 +1629,60 @@ function renderGraficoPicos() {
   const pAlta = totalValidos ? Math.round((alta / totalValidos) * 100) : 0;
   const pBaja = totalValidos ? Math.round((baja / totalValidos) * 100) : 0;
 
-  const lblRango = document.getElementById('donut-lbl-rango');
-  const lblAlta = document.getElementById('donut-lbl-alta');
-  const lblBaja = document.getElementById('donut-lbl-baja');
+  const lblRango = document.getElementById('donut-val-rango');
+  const lblAlta = document.getElementById('donut-val-alta');
+  const lblBaja = document.getElementById('donut-val-baja');
   if (lblRango) lblRango.innerText = `${pRango}%`;
   if (lblAlta) lblAlta.innerText = `${pAlta}%`;
   if (lblBaja) lblBaja.innerText = `${pBaja}%`;
 
-  const configDonut = (ctxCanvas, porcentaje, colorPrimario) => {
-    return new Chart(ctxCanvas, {
-      type: 'doughnut',
-      data: {
-        datasets: [{
-          data: [porcentaje, 100 - porcentaje],
-          backgroundColor: [colorPrimario, 'rgba(44, 58, 64, 0.08)'],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '74%',
-        plugins: {
-          legend: { display: false },
-          tooltip: { enabled: false }
-        }
-      }
-    });
+  const pintarDonutNativo = (canvasId, porcentaje, colorArco) => {
+    const c = document.getElementById(canvasId);
+    if (!c) return;
+    const size = 85;
+    c.width = size * dpr;
+    c.height = size * dpr;
+    c.style.width = size + 'px';
+    c.style.height = size + 'px';
+
+    const ctxD = c.getContext('2d');
+    ctxD.scale(dpr, dpr);
+    ctxD.clearRect(0, 0, size, size);
+
+    const centro = size / 2;
+    const radio = 33;
+    const grosor = 8;
+
+    // Fondo grisÃ¡ceo suave
+    ctxD.strokeStyle = 'rgba(44, 58, 64, 0.10)';
+    ctxD.lineWidth = grosor;
+    ctxD.beginPath();
+    ctxD.arc(centro, centro, radio, 0, Math.PI * 2);
+    ctxD.stroke();
+
+    // Arco activo de porcentaje
+    if (porcentaje > 0) {
+      ctxD.strokeStyle = colorArco;
+      ctxD.lineWidth = grosor;
+      ctxD.lineCap = 'round';
+      ctxD.beginPath();
+      const startAngle = -Math.PI / 2;
+      const endAngle = startAngle + ((porcentaje / 100) * (Math.PI * 2));
+      ctxD.arc(centro, centro, radio, startAngle, endAngle);
+      ctxD.stroke();
+    }
   };
 
-  const canvasRango = document.getElementById('chartDonutRango');
-  const canvasAlta = document.getElementById('chartDonutAlta');
-  const canvasBaja = document.getElementById('chartDonutBaja');
+  pintarDonutNativo('donutRango', pRango, colorTurquesa);
+  pintarDonutNativo('donutAlta', pAlta, colorAmarillo);
+  pintarDonutNativo('donutBaja', pBaja, colorRojo);
 
-  if (chartDonutRangoInstancia) chartDonutRangoInstancia.destroy();
-  if (chartDonutAltaInstancia) chartDonutAltaInstancia.destroy();
-  if (chartDonutBajaInstancia) chartDonutBajaInstancia.destroy();
-
-  if (canvasRango) chartDonutRangoInstancia = configDonut(canvasRango.getContext('2d'), pRango, colorTurquesa);
-  if (canvasAlta) chartDonutAltaInstancia = configDonut(canvasAlta.getContext('2d'), pAlta, colorAmarillo);
-  if (canvasBaja) chartDonutBajaInstancia = configDonut(canvasBaja.getContext('2d'), pBaja, colorRojo);
+  // -------------------------------------------------------------------------
+  // 4. ACTUALIZAR AUDITORÃA CLÃNICA ORIGINAL (Barras y Promedios)
+  // -------------------------------------------------------------------------
+  if (typeof renderBarrasPorcentaje === 'function') {
+    renderBarrasPorcentaje();
+  }
 }
 
 function autoFocoCarbos() {
@@ -1540,10 +1774,10 @@ function calcular(esNav = false) {
   let ajusteTendencia = "";
   if (tendenciaVal === 'bajando') {
       dosisTotalExacta = dosisTotalExacta * 0.8; 
-      ajusteTendencia = "<br><span style='color:#FF3B30; font-weight:900;'>↓ Reducido 20% por caída rápida</span>";
+      ajusteTendencia = "<br><span style='color:#FF3B30; font-weight:900;'>â†“ Reducido 20% por caÃ­da rÃ¡pida</span>";
   } else if (tendenciaVal === 'subiendo') {
       dosisTotalExacta = dosisTotalExacta * 1.1; 
-      ajusteTendencia = "<br><span style='color:#FF9F0A; font-weight:900;'>↑ Aumentado 10% por subida rápida</span>";
+      ajusteTendencia = "<br><span style='color:#FF9F0A; font-weight:900;'>â†‘ Aumentado 10% por subida rÃ¡pida</span>";
   }
 
   if (glucosa <= 70 && glucosa > 54) { 
@@ -1562,38 +1796,38 @@ function calcular(esNav = false) {
     colorNumeroGemas = "#FF3B30";
     protocoloClinicoHTML = `
       <div class="protocolo-box protocolo-alerta">
-        <strong>• ¡Tu energía está bajita!</strong><br>
-        <strong>Toma algo dulce YA:</strong> Bebe medio vaso de jugo o agua con 3 cucharaditas de azúcar.<br>
-        <strong>Modo estatua:</strong> Siéntate y descansa. Cero correr o jugar.<br>
-        <strong>Espera y revisa:</strong> Quédate tranquilo 15 minutos y vuelve a medirte.
+        <strong>â€¢ Â¡Tu energÃ­a estÃ¡ bajita!</strong><br>
+        <strong>Toma algo dulce YA:</strong> Bebe medio vaso de jugo o agua con 3 cucharaditas de azÃºcar.<br>
+        <strong>Modo estatua:</strong> SiÃ©ntate y descansa. Cero correr o jugar.<br>
+        <strong>Espera y revisa:</strong> QuÃ©date tranquilo 15 minutos y vuelve a medirte.
       </div>`;
   } 
   else {
     if (glucosa >= 70 && glucosa <= 130) {
-      protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Estás en los valores recomendados.</div>`;
+      protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">EstÃ¡s en los valores recomendados.</div>`;
     }
     else if (glucosa >= 140 && glucosa <= 180) {
       protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Un poquito alta. Bebe un vaso de agua.</div>`;
     }
     else if (glucosa >= 181 && glucosa <= 249) {
-      protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Aplica tu corrección. Toma agua pura.</div>`;
+      protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal">Aplica tu correcciÃ³n. Toma agua pura.</div>`;
     }
     else if (glucosa >= 250 && glucosa < 400) {
-      protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal"><strong>• Actividad:</strong> Cero ejercicio.<br><strong>• Hidratación:</strong> Bebe medio litro de agua.</div>`;
+      protocoloClinicoHTML = `<div class="protocolo-box protocolo-normal"><strong>â€¢ Actividad:</strong> Cero ejercicio.<br><strong>â€¢ HidrataciÃ³n:</strong> Bebe medio litro de agua.</div>`;
     }
     else if (glucosa >= 400) {
       colorNumeroGemas = "#FF3B30";
-      protocoloClinicoHTML = `<div class="protocolo-box protocolo-alerta"><strong>⚠️ Cifra crítica.</strong> Verifica tu catéter.</div>`;
+      protocoloClinicoHTML = `<div class="protocolo-box protocolo-alerta"><strong>âš ï¸ Cifra crÃ­tica.</strong> Verifica tu catÃ©ter.</div>`;
     }
   }
 
-  let btnAtras = `<button class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>Atrás</button>`; 
+  let btnAtras = `<button class="btn-small" onclick="navegarCalculos(-1)" ${calcPosicion <= 0 ? 'disabled' : ''}>AtrÃ¡s</button>`; 
   let btnAdel = `<button class="btn-small" onclick="navegarCalculos(1)" ${calcPosicion >= calcHistoria.length - 1 ? 'disabled' : ''}>Adelante</button>`;
 
   resDiv.className = "result-box";
   resDiv.innerHTML = `
-    <button class="btn-close-modal" onclick="document.getElementById('resultado').style.display='none'">×</button>
-    <h2>¡Gemas Calculadas!</h2>
+    <button class="btn-close-modal" onclick="document.getElementById('resultado').style.display='none'">Ã—</button>
+    <h2>Â¡Gemas Calculadas!</h2>
     <div class="result-number" style="color: ${colorNumeroGemas} !important;">${dosisFinal}</div>
     
     <button class="btn-save" style="background: var(--turquoise-strong); color: #FFFFFF; margin-top: 0px; margin-bottom: 8px; font-size: 14px; padding: 10px; border-radius: 12px; box-shadow: 0 6px 20px rgba(8,131,135,0.2);" 
@@ -1602,7 +1836,7 @@ function calcular(esNav = false) {
     <div class="result-unit" style="margin-bottom: 4px;">Gemas Ultra para Polar</div>
     <div class="result-details" style="margin-top: 0px;">
       Por Comida: <strong>${dosisComida} U</strong> (R${ratio})<br>
-      Por Energía: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar} | FC: ${fc})
+      Por EnergÃ­a: <strong>${dosisCorreccion} U</strong> (Ideal: ${metaRestar} | FC: ${fc})
       ${ajusteTendencia}
       ${protocoloClinicoHTML}
     </div>
