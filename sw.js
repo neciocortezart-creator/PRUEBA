@@ -8,11 +8,10 @@ const ASSETS_TO_CACHE = [
   './app.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-  'https://cdn.jsdelivr.net/npm/chart.js',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap'
 ];
 
-// 1. INSTALACIÓN
+// 1. INSTALACIÃ“N
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -20,7 +19,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// 2. ACTIVACIÓN Y LIMPIEZA DE CACHÉ ANTIGUO
+// 2. ACTIVACIÃ“N Y LIMPIEZA DE CACHÃ‰ ANTIGUO
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -34,7 +33,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// 3. ESTRATEGIA DE CACHÉ (FETCH)
+// 3. ESTRATEGIA DE CACHÃ‰ (FETCH)
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.hostname.includes('supabase.co')) {
@@ -57,7 +56,7 @@ self.addEventListener('fetch', (event) => {
 
 // 4. NOTIFICACIONES PUSH
 self.addEventListener('push', (event) => {
-  let data = { title: 'Alerta Polar', body: 'Notificación del sistema Polar', icon: 'polar-logo.png' };
+  let data = { title: 'Alerta Polar', body: 'NotificaciÃ³n del sistema Polar', icon: 'polar-logo.png' };
   if (event.data) {
     try { data = event.data.json(); } catch (e) { data.body = event.data.text(); }
   }
