@@ -1,4 +1,4 @@
-const CACHE_NAME = 'polar-elite-cache-v4';
+const CACHE_NAME = 'polar-elite-cache-v5';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS_TO_CACHE = [
   './app.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
+  'https://cdn.jsdelivr.net/npm/chart.js',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&display=swap'
 ];
 
