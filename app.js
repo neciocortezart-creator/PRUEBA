@@ -364,6 +364,9 @@ function cambiarTema() {
   localStorage.setItem('polar_config', JSON.stringify(config)); 
   aplicarTemaReal(temaElegido); 
   cargarAvatar(); 
+  if (document.getElementById('view-graficas').style.display === 'block') {
+    renderGraficoPicos();
+  }
 }
 
 function aplicarTemaReal(temaNombre) { 
@@ -374,158 +377,6 @@ function aplicarTemaReal(temaNombre) {
 
 let usoRedondeoElite = true;
 let diasFiltroBarras = 7;
-
-function cambiarFiltroBarras(dias) {
-    diasFiltroBarras = dias;
-    renderBarrasPorcentaje();
-}
-
-function renderBarrasPorcentaje() {
-    const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
-    const ahora = new Date().getTime();
-    const tiempoLimite = ahora - (diasFiltroBarras * 24 * 60 * 60 * 1000);
-
-    const parseItemTime = (item) => {
-        if (item.timestamp) return item.timestamp;
-        if(!item.iso) return 0;
-        return new Date(item.iso + 'T00:00:00').getTime();
-    };
-
-    const historialFiltrado = historialCompleto.filter(item => parseItemTime(item) >= tiempoLimite);
-
-    let n70 = 0, n180 = 0, n240 = 0, nMas240 = 0, total = 0;
-    historialFiltrado.forEach(d => {
-        let v = parseFloat(d.glucosa);
-        if(isNaN(v)) return;
-        total++;
-        if (v <= 70) n70++;
-        else if (v <= 180) n180++;
-        else if (v <= 239) n240++;
-        else nMas240++;
-    });
-
-    let p70 = total ? Math.round((n70/total)*100) : 0;
-    let p180 = total ? Math.round((n180/total)*100) : 0;
-    let p240 = total ? Math.round((n240/total)*100) : 0;
-    let pMas240 = total ? Math.round((nMas240/total)*100) : 0;
-
-    const isDarkBg = ['oscuro', 'halloween'].includes(config.tema);
-    const textCol = isDarkBg ? '#FFFFFF' : '#000000';
-
-    const divBarras = document.getElementById('barras-mensuales');
-    if(!divBarras) return;
-
-    const circuloStyle = (dias) => `
-        width: 52px; height: 52px; border-radius: 50%;
-        background: ${diasFiltroBarras === dias ? 'var(--turquoise-strong)' : 'transparent'};
-        color: ${diasFiltroBarras === dias ? 'var(--white)' : 'var(--text-primary)'};
-        border: 2px solid var(--turquoise-strong);
-        display: flex; flex-direction: column; justify-content: center; align-items: center;
-        font-weight: 900; font-size: 14px; cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); line-height: 1.1;
-    `;
-
-    divBarras.innerHTML = `
-        <h4 style="font-size: 15px; color: var(--turquoise-strong); margin-bottom: 8px; font-weight: 900;">mg/dl</h4>
-
-        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
-          <span>240 de azúcar en adelante</span><span>${pMas240}%</span>
-        </div>
-        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
-          <div style="height: 100%; background: #FF9F0A; width: ${pMas240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
-          <span>de 181 a 240</span><span>${p240}%</span>
-        </div>
-        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
-          <div style="height: 100%; background: #F3C623; width: ${p240}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
-          <span>de 70 a 180</span><span>${p180}%</span>
-        </div>
-        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 8px; overflow:hidden;">
-          <div style="height: 100%; background: #4CAF50; width: ${p180}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
-          <span>en 70</span><span>${p70}%</span>
-        </div>
-        <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 10px; margin-bottom: 16px; overflow:hidden;">
-          <div style="height: 100%; background: #FF3B30; width: ${p70}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-        </div>
-
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
-            <div style="${circuloStyle(7)}" onclick="cambiarFiltroBarras(7)">7<br><span style="font-size:11px;font-weight:700;">días</span></div>
-            <div style="${circuloStyle(10)}" onclick="cambiarFiltroBarras(10)">10<br><span style="font-size:11px;font-weight:700;">días</span></div>
-            <div style="${circuloStyle(14)}" onclick="cambiarFiltroBarras(14)">14<br><span style="font-size:11px;font-weight:700;">días</span></div>
-            <div style="${circuloStyle(30)}" onclick="cambiarFiltroBarras(30)">30<br><span style="font-size:11px;font-weight:700;">días</span></div>
-            <div style="${circuloStyle(90)}" onclick="cambiarFiltroBarras(90)">90<br><span style="font-size:11px;font-weight:700;">días</span></div>
-        </div>
-    `;
-
-    renderDesgloseComidas(historialFiltrado, textCol);
-}
-
-function renderDesgloseComidas(historialFiltrado, textCol) {
-    const divComidas = document.getElementById('panel-comidas-stats');
-    if(!divComidas) return;
-
-    let stats = {
-        desayuno: { sum: 0, count: 0 },
-        mam: { sum: 0, count: 0 },
-        almuerzo: { sum: 0, count: 0 },
-        mpm: { sum: 0, count: 0 },
-        cena: { sum: 0, count: 0 }
-    };
-    let totalValidos = 0;
-
-    historialFiltrado.forEach(d => {
-        let val = parseFloat(d.glucosa);
-        if (!isNaN(val) && stats.hasOwnProperty(d.tipoComida)) {
-            stats[d.tipoComida].sum += val;
-            stats[d.tipoComida].count++;
-            totalValidos++;
-        }
-    });
-
-    if (totalValidos === 0) {
-        divComidas.innerHTML = '<p style="font-size: 13px; font-weight: 700; opacity: 0.6; text-align: center;">Sin registros de glucosa en este periodo.</p>';
-        return;
-    }
-
-    const nombres = { desayuno: 'Desayuno', mam: 'Once', almuerzo: 'Almuerzo', mpm: 'Merienda', cena: 'Cena' };
-    const colores = { desayuno: '#FCA311', mam: '#D84B79', almuerzo: '#4CAF50', mpm: '#5B9BD5', cena: '#A35496' };
-
-    let html = `<h4 style="font-size: 15px; color: var(--turquoise-strong); margin-bottom: 12px; font-weight: 900;">Promedio de Energía por Comida</h4>`;
-
-    for (let key in stats) {
-        if(stats[key].count > 0) {
-            let promedio = Math.round(stats[key].sum / stats[key].count);
-            let colorBarra = colores[key];
-            let nombre = nombres[key];
-            
-            let colorAlerta = 'var(--text-primary)';
-            if (promedio < 70) colorAlerta = '#FF3B30';
-            else if (promedio > 180) colorAlerta = '#FF9F0A';
-            else colorAlerta = '#4CAF50'; 
-
-            let fillPercent = Math.min((promedio / 250) * 100, 100);
-
-            html += `
-            <div style="display:flex; justify-content:space-between; align-items: flex-end; font-size: 13px; font-weight: 900; color: ${textCol}; margin-bottom: 2px;">
-                <span>${nombre} <span style="opacity: 0.5; font-size: 11px;">(${stats[key].count} reg.)</span></span>
-                <span style="font-size: 15px; color: ${colorAlerta};">${promedio} <span style="font-size: 10px; color: ${textCol}; opacity: 0.7;">mg/dL</span></span>
-            </div>
-            <div style="width: 100%; background: rgba(0,0,0,0.06); border-radius: 12px; height: 8px; margin-bottom: 12px; overflow:hidden;">
-                <div style="height: 100%; background: ${colorBarra}; width: ${fillPercent}%; transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);"></div>
-            </div>`;
-        }
-    }
-
-    divComidas.innerHTML = html;
-}
 
 function buscarDiaEspecifico() {
     const fechaSeleccionada = document.getElementById('buscador-fecha').value;
@@ -612,9 +463,6 @@ function actualizarBotonRedondeoUI() {
     }
 }
 
-// REGLA EXACTA DE REDONDEO:
-// Si la parte decimal es >= 0.5 (ej: 8.5, 8.6, etc.) -> redondea hacia arriba (ej: 9)
-// Si la parte decimal es <= 0.499... (ej: 8.4 hacia abajo, 8.1, 8.0) -> se queda en el entero (ej: 8)
 function redondeoElite(valor) {
   if (!usoRedondeoElite) return Math.round(valor * 10) / 10;
   const valorLimpio = Math.round(valor * 100) / 100;
@@ -627,11 +475,9 @@ function redondeoElite(valor) {
 }
 
 let deferredPrompt; 
-let calFechaActual = new Date();
 let estadoEjercicio = 0; 
 let calcHistoria = []; 
 let calcPosicion = -1;
-let tooltipListenerAdded = false;
 
 let config = {
   peso: 50, 
@@ -1352,164 +1198,257 @@ function sugerirEsquema() {
   alert(m);
 }
 
-function verificarCicloSemanal() {
-    return new Date().getTime() - (7 * 24 * 60 * 60 * 1000);
-}
+// INSTANCIAS GLOBALES PARA GESTIÓN DE MEMORIA EN CHART.JS
+let chartTendenciaInstancia = null;
+let chartBarrasInstancia = null;
+let chartDonutRangoInstancia = null;
+let chartDonutAltaInstancia = null;
+let chartDonutBajaInstancia = null;
 
+// =========================================================================
+// RENDERIZADO COMPLETO DEL PANEL ANALÍTICO ÉLITE (3 GRÁFICAS)
+// =========================================================================
 function renderGraficoPicos() {
-  const canvas = document.getElementById('graficoPicos'); 
-  if (!canvas) return; 
-  
-  const dpr = window.devicePixelRatio || 1;
-  const width = canvas.parentElement.clientWidth || 350;
-  const height = 260;
-  
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  canvas.style.width = width + 'px';
-  canvas.style.height = height + 'px';
-  
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, width, height);
-  
-  const historialCompleto = JSON.parse(localStorage.getItem('historial_polar') || '[]');
-  let inicioSemana = verificarCicloSemanal();
+  if (typeof Chart === 'undefined') {
+    console.warn("Chart.js aún no está disponible.");
+    return;
+  }
 
-  const isDarkBg = ['oscuro', 'halloween'].includes(config.tema);
-  const textCol = isDarkBg ? '#FFFFFF' : '#000000';
+  const canvasTendencia = document.getElementById('chartTendenciaHoras');
+  if (!canvasTendencia) return;
 
-  const paddingX = 40; 
-  const paddingY = 30; 
-  const gridW = width - paddingX * 2; 
-  const gridH = height - paddingY * 2;
+  // 1. Extraer colores directos de las variables CSS activas del tema
+  const styles = getComputedStyle(document.documentElement);
+  const colorTurquesa = styles.getPropertyValue('--turquoise-strong').trim() || '#088387';
+  const colorAzul = styles.getPropertyValue('--blue-ice-light').trim() || '#5B9BD5';
+  const colorAmarillo = styles.getPropertyValue('--blue-ice-mid').trim() || '#F3C623';
+  const colorRojo = styles.getPropertyValue('--accent-btn').trim() || '#F05A4A';
+  const colorTexto = styles.getPropertyValue('--text-primary').trim() || '#2C3A40';
 
-  ctx.strokeStyle = 'rgba(44, 58, 64, 0.15)'; 
-  ctx.lineWidth = 1;
-  for(let i=0; i<=4; i++) { ctx.beginPath(); let y = paddingY + (i * (gridH/4)); ctx.moveTo(paddingX, y); ctx.lineTo(width - paddingX, y); ctx.stroke(); }
-  for(let i=0; i<=6; i++) { ctx.beginPath(); let x = paddingX + (i * (gridW/6)); ctx.moveTo(x, paddingY); ctx.lineTo(x, height - paddingY); ctx.stroke(); }
+  // 2. Extraer datos del almacenamiento local de Polar
+  const historial = JSON.parse(localStorage.getItem('historial_polar') || '[]');
 
-  ctx.fillStyle = 'var(--text-primary)'; 
-  ctx.font = 'bold 12px Nunito'; 
-  ctx.textAlign = 'right'; 
-  ctx.textBaseline = 'middle';
-  ctx.fillText('400', paddingX - 8, paddingY); 
-  ctx.fillText('200', paddingX - 8, paddingY + (gridH/2)); 
-  ctx.fillText('0', paddingX - 8, paddingY + gridH);
+  // =========================================================================
+  // GRÁFICA 1: TENDENCIA HORARIA (Área / Línea con Puntos Marcados)
+  // Regla estricta: Visible y precisa desde el 1er dato
+  // =========================================================================
+  const ctxTendencia = canvasTendencia.getContext('2d');
+  if (chartTendenciaInstancia) chartTendenciaInstancia.destroy();
 
-  renderBarrasPorcentaje();
+  const datosValidos = historial.filter(r => r.glucosa !== undefined && r.glucosa !== null && r.glucosa !== '');
+  const ultimosRegistros = datosValidos.slice(-12);
 
-  const parseItemTime = (item) => {
-      if (item.timestamp) return item.timestamp;
-      if(!item.iso) return 0;
-      return new Date(item.iso + 'T00:00:00').getTime(); 
+  let labelsTendencia = [];
+  let valoresGlucosa = [];
+  let pointColors = [];
+
+  if (ultimosRegistros.length === 0) {
+    labelsTendencia = ['Sin registros'];
+    valoresGlucosa = [100];
+    pointColors = [colorTurquesa];
+  } else {
+    ultimosRegistros.forEach(item => {
+      let hora = item.fecha ? (item.fecha.split(', ') || item.fecha.split(' ') || item.fecha) : '--:--';
+      if (hora.length >= 5) hora = hora.substring(0, 5);
+      labelsTendencia.push(hora);
+
+      const val = parseFloat(item.glucosa) || 0;
+      valoresGlucosa.push(val);
+
+      if (val < 70) pointColors.push(colorRojo);
+      else if (val > 180) pointColors.push(colorAmarillo);
+      else pointColors.push(colorTurquesa);
+    });
+  }
+
+  const gradientArea = ctxTendencia.createLinearGradient(0, 0, 0, 200);
+  gradientArea.addColorStop(0, 'rgba(8, 131, 135, 0.28)');
+  gradientArea.addColorStop(1, 'rgba(8, 131, 135, 0.00)');
+
+  chartTendenciaInstancia = new Chart(ctxTendencia, {
+    type: 'line',
+    data: {
+      labels: labelsTendencia,
+      datasets: [{
+        label: 'Glucosa (mg/dL)',
+        data: valoresGlucosa,
+        borderColor: colorTurquesa,
+        borderWidth: 2.8,
+        backgroundColor: gradientArea,
+        fill: true,
+        tension: 0.35,
+        pointRadius: ultimosRegistros.length === 1 ? 8 : 5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: pointColors,
+        pointBorderColor: '#FFFFFF',
+        pointBorderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: colorTexto,
+          titleFont: { family: 'Nunito', weight: 'bold' },
+          bodyFont: { family: 'Nunito', weight: 'bold' },
+          callbacks: {
+            label: (ctx) => ` Nivel: ${ctx.parsed.y} mg/dL`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: colorTexto, font: { family: 'Nunito', size: 10, weight: '700' } }
+        },
+        y: {
+          suggestedMin: 50,
+          suggestedMax: 250,
+          grid: { color: 'rgba(44, 58, 64, 0.08)' },
+          ticks: { color: colorTexto, font: { family: 'Nunito', size: 10, weight: '700' } }
+        }
+      }
+    }
+  });
+
+  // =========================================================================
+  // GRÁFICA 2: HISTÓRICO VERTICAL (Insulina vs Carbohidratos)
+  // =========================================================================
+  const canvasBarras = document.getElementById('chartBarrasRatios');
+  if (canvasBarras) {
+    const ctxBarras = canvasBarras.getContext('2d');
+    if (chartBarrasInstancia) chartBarrasInstancia.destroy();
+
+    const ultimosSiete = historial.slice(-7);
+    const labelsBarras = ultimosSiete.map((item, idx) => {
+      if (item.tipoComida) {
+        const dict = { desayuno: 'Des', mam: 'Once', almuerzo: 'Alm', mpm: 'Mer', cena: 'Cen', corroborar: 'Rev' };
+        return dict[item.tipoComida] || `C${idx + 1}`;
+      }
+      return `M${idx + 1}`;
+    });
+
+    const carbosData = ultimosSiete.map(item => parseFloat(item.carbos) || 0);
+    const dosisData = ultimosSiete.map(item => parseFloat(item.dosis) || 0);
+
+    chartBarrasInstancia = new Chart(ctxBarras, {
+      type: 'bar',
+      data: {
+        labels: labelsBarras.length ? labelsBarras : ['Sin datos'],
+        datasets: [
+          {
+            label: 'Carbos (g)',
+            data: carbosData.length ? carbosData : [0],
+            backgroundColor: colorAzul,
+            borderRadius: 6,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Dosis (U)',
+            data: dosisData.length ? dosisData : [0],
+            backgroundColor: colorTurquesa,
+            borderRadius: 6,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 12, color: colorTexto, font: { family: 'Nunito', weight: '800', size: 11 } }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: colorTexto, font: { family: 'Nunito', weight: '700', size: 10 } }
+          },
+          y: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: 'rgba(44, 58, 64, 0.08)' },
+            ticks: { color: colorAzul, font: { family: 'Nunito', weight: '800', size: 10 } },
+            title: { display: true, text: 'Gramos (CHO)', color: colorAzul, font: { size: 9, weight: '800' } }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            grid: { display: false },
+            ticks: { color: colorTurquesa, font: { family: 'Nunito', weight: '800', size: 10 } },
+            title: { display: true, text: 'Unidades (U)', color: colorTurquesa, font: { size: 9, weight: '800' } }
+          }
+        }
+      }
+    });
+  }
+
+  // =========================================================================
+  // GRÁFICA 3: TRÍO DE DONUTS DE DISTRIBUCIÓN PORCENTUAL
+  // =========================================================================
+  let totalValidos = 0;
+  let enRango = 0;
+  let alta = 0;
+  let baja = 0;
+
+  historial.forEach(r => {
+    const val = parseFloat(r.glucosa);
+    if (!isNaN(val) && val > 0) {
+      totalValidos++;
+      if (val < 70) baja++;
+      else if (val <= 180) enRango++;
+      else alta++;
+    }
+  });
+
+  const pRango = totalValidos ? Math.round((enRango / totalValidos) * 100) : 0;
+  const pAlta = totalValidos ? Math.round((alta / totalValidos) * 100) : 0;
+  const pBaja = totalValidos ? Math.round((baja / totalValidos) * 100) : 0;
+
+  const lblRango = document.getElementById('donut-lbl-rango');
+  const lblAlta = document.getElementById('donut-lbl-alta');
+  const lblBaja = document.getElementById('donut-lbl-baja');
+  if (lblRango) lblRango.innerText = `${pRango}%`;
+  if (lblAlta) lblAlta.innerText = `${pAlta}%`;
+  if (lblBaja) lblBaja.innerText = `${pBaja}%`;
+
+  const configDonut = (ctxCanvas, porcentaje, colorPrimario) => {
+    return new Chart(ctxCanvas, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [porcentaje, 100 - porcentaje],
+          backgroundColor: [colorPrimario, 'rgba(44, 58, 64, 0.08)'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '74%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        }
+      }
+    });
   };
 
-  const historialSemana = historialCompleto.filter(item => parseItemTime(item) >= inicioSemana);
+  const canvasRango = document.getElementById('chartDonutRango');
+  const canvasAlta = document.getElementById('chartDonutAlta');
+  const canvasBaja = document.getElementById('chartDonutBaja');
 
-  if (historialSemana.length === 0) {
-      ctx.fillStyle = textCol; 
-      ctx.font = '800 15px Nunito'; 
-      ctx.textAlign = 'center';
-      ctx.fillText('Nueva semana iniciada. Registra para ver puntos.', width / 2, height / 2);
-      return;
-  }
+  if (chartDonutRangoInstancia) chartDonutRangoInstancia.destroy();
+  if (chartDonutAltaInstancia) chartDonutAltaInstancia.destroy();
+  if (chartDonutBajaInstancia) chartDonutBajaInstancia.destroy();
 
-  const puntos = historialSemana.slice(-15);
-  const maxVal = 400; 
-  const minVal = 0; 
-  
-  const minTimeVal = Math.min(...puntos.map(parseItemTime));
-  const maxTimeVal = Math.max(...puntos.map(parseItemTime));
-  const timeRange = maxTimeVal - minTimeVal || 1; 
-
-  const coords = puntos.map((item) => {
-      let val = parseFloat(item.glucosa) || 100;
-      if (isNaN(val) || String(item.glucosa).toUpperCase() === 'HI') val = 600;
-      
-      let itemTime = parseItemTime(item);
-      let pX = paddingX + ((itemTime - minTimeVal) / timeRange) * gridW;
-      
-      let pY = paddingY + gridH - ((val - minVal) / (maxVal - minVal)) * gridH;
-      if (pY < paddingY) pY = paddingY; 
-      return {x: pX, y: pY, val: val, originalStr: item.glucosa};
-  });
-
-  window.graficoCoordsGlobal = coords.map((c, i) => {
-      const item = puntos[i];
-      const timePart = item.fecha.split(', ') || item.fecha; 
-      return { x: c.x, y: c.y, val: c.val, time: timePart };
-  });
-
-  ctx.strokeStyle = (config.tema === 'oscuro' || config.tema === 'halloween') ? '#FFFFFF' : '#2C3A40';
-  ctx.lineWidth = 3; 
-  ctx.beginPath();
-  coords.forEach((c, i) => { if (i === 0) ctx.moveTo(c.x, c.y); else ctx.lineTo(c.x, c.y); });
-  ctx.stroke();
-
-  coords.forEach((c) => {
-      let colorNodo = '#4CAF50'; 
-      if (c.val < 55) colorNodo = '#FF3B30';
-      else if (c.val < 81) colorNodo = '#FF9F0A';
-      else if (c.val < 181) colorNodo = '#4CAF50';
-      else if (c.val < 301) colorNodo = '#1B5E20';
-      else colorNodo = '#FF3B30';
-
-      ctx.fillStyle = colorNodo; 
-      ctx.beginPath(); 
-      ctx.arc(c.x, c.y, 7, 0, Math.PI * 2); 
-      ctx.fill();
-      ctx.strokeStyle = '#FFFFFF'; 
-      ctx.lineWidth = 2; 
-      ctx.stroke();
-  });
-
-  if(!tooltipListenerAdded) {
-      const manejarToqueGrafico = (e) => {
-          if (e.type === 'touchstart') e.preventDefault(); 
-
-          const rect = canvas.getBoundingClientRect();
-          let clientX, clientY;
-          if (e.touches && e.touches.length > 0) {
-              clientX = e.touches[0].clientX;
-              clientY = e.touches[0].clientY;
-          } else {
-              clientX = e.clientX;
-              clientY = e.clientY;
-          }
-          
-          const x = clientX - rect.left;
-          const y = clientY - rect.top;
-          
-          let closest = null; 
-          let minDist = 15; 
-
-          if (window.graficoCoordsGlobal) {
-              window.graficoCoordsGlobal.forEach(c => {
-                  const dist = Math.hypot(c.x - x, c.y - y);
-                  if (dist <= minDist) { 
-                      minDist = dist; 
-                      closest = c; 
-                  }
-              });
-          }
-
-          const tooltip = document.getElementById('grafico-tooltip');
-          if (closest) {
-              tooltip.innerHTML = `Nivel: ${closest.val} mg/dL<br>Hora: ${closest.time}`;
-              tooltip.style.left = closest.x + 'px';
-              tooltip.style.top = closest.y + 'px';
-              tooltip.style.display = 'block';
-              setTimeout(() => tooltip.style.display = 'none', 3500); 
-          } else { 
-              tooltip.style.display = 'none'; 
-          }
-      };
-
-      canvas.addEventListener('touchstart', manejarToqueGrafico, {passive: false});
-      canvas.addEventListener('mousedown', manejarToqueGrafico);
-      tooltipListenerAdded = true;
-  }
+  if (canvasRango) chartDonutRangoInstancia = configDonut(canvasRango.getContext('2d'), pRango, colorTurquesa);
+  if (canvasAlta) chartDonutAltaInstancia = configDonut(canvasAlta.getContext('2d'), pAlta, colorAmarillo);
+  if (canvasBaja) chartDonutBajaInstancia = configDonut(canvasBaja.getContext('2d'), pBaja, colorRojo);
 }
 
 function autoFocoCarbos() {
@@ -1593,11 +1532,9 @@ function calcular(esNav = false) {
   const fc = obtenerFcComida(comidaKey);
   const resDiv = document.getElementById('resultado');
 
-  // 1. CÁLCULO EXACTO SIN REDONDEAR PREMATURAMENTE
   let dosisComidaExacta = (ratio === 0) ? 0 : (carbos / ratio);
   let dosisCorreccionExacta = (glucosa > metaRestar) ? (glucosa - metaRestar) / fc : 0; 
 
-  // Suma exacta antes de factores externos
   let dosisTotalExacta = (dosisComidaExacta + dosisCorreccionExacta) * factorEj;
 
   let ajusteTendencia = "";
@@ -1614,8 +1551,6 @@ function calcular(esNav = false) {
   }
   if (dosisTotalExacta < 0) dosisTotalExacta = 0; 
 
-  // 2. APLICACIÓN DE LA REGLA DE REDONDEO:
-  // Si da 8.5 en adelante -> 9. Si da 8.4 hacia abajo (ej. 8.1) -> 8
   let dosisFinal = usoRedondeoElite ? redondeoElite(dosisTotalExacta) : Math.round(dosisTotalExacta * 10) / 10;
   let dosisComida = usoRedondeoElite ? redondeoElite(dosisComidaExacta) : Math.round(dosisComidaExacta * 10) / 10;
   let dosisCorreccion = usoRedondeoElite ? redondeoElite(dosisCorreccionExacta) : Math.round(dosisCorreccionExacta * 10) / 10;
